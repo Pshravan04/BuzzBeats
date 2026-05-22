@@ -20,7 +20,7 @@ export function Sidebar() {
   return (
     <nav className="sidebar" role="navigation" aria-label="Main navigation" style={{
       display: 'flex', flexDirection: 'column', paddingTop: 32, paddingBottom: 24,
-      background: '#120d18', borderRight: '1px solid #1f182b', height: '100%',
+      background: 'var(--bg-elevated)', borderRight: '1px solid var(--border-subtle)', height: '100%',
     }}>
       {/* Logo & Subtitle */}
       <div style={{ padding: '0 24px', marginBottom: 48 }}>
@@ -28,7 +28,7 @@ export function Sidebar() {
           <h1 style={{ 
             fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 800, 
             margin: 0, letterSpacing: '-0.03em',
-            background: 'var(--gradient-accent)', WebkitBackgroundClip: 'text', color: 'transparent'
+            color: 'var(--accent)'
           }}>
             BuzzBeats
           </h1>
@@ -67,8 +67,7 @@ export function Sidebar() {
                 <div style={{
                   position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
                   width: 4, height: 24, borderRadius: '0 4px 4px 0',
-                  background: 'var(--gradient-accent)',
-                  boxShadow: '0 0 10px var(--accent-glow)'
+                  background: 'var(--accent)'
                 }} />
               )}
               <div style={{
@@ -97,7 +96,7 @@ export function Sidebar() {
           >
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
-              background: 'var(--gradient-accent)',
+              background: 'var(--accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'white', fontWeight: 800, fontSize: 14
             }}>

@@ -1,46 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Sora:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ==========================================
-   BuzzBeats Sonic Pulse Narrative Design System
+   BuzzBeats Apple-Style Classic Design System
    ========================================== */
 
 :root {
-  /* Sonic Pulse Narrative Design System */
-  --bg-base: #080808; /* Pure black canvas */
-  --bg-elevated: #121212; /* Surface charcoal */
-  --bg-glass: rgba(168, 85, 247, 0.15); /* Primary 15% */
-  --bg-glass-hover: rgba(168, 85, 247, 0.25);
+  /* Classic Dark Theme (Apple Style) */
+  --bg-base: #000000;
+  --bg-elevated: #1C1C1E; /* iOS dark surface */
+  --bg-glass: rgba(28, 28, 30, 0.75);
+  --bg-glass-hover: rgba(44, 44, 46, 0.85);
   
-  --text-primary: #ffffff;
-  --text-secondary: #cfc2d6; /* on-surface-variant */
-  --text-muted: #988d9f; /* outline */
+  --text-primary: #FFFFFF;
+  --text-secondary: #EBEBF599; /* iOS secondary label */
+  --text-muted: #EBEBF54D; /* iOS tertiary label */
   
-  --border-subtle: #39323d; /* surface-variant */
-  --border-focus: rgba(168, 85, 247, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.15);
+  --border-focus: rgba(255, 255, 255, 0.3);
   
-  /* Primary Color & Gradients */
-  --accent: #a855f7;
-  --accent-hover: #b76dff;
-  --accent-glow: rgba(168, 85, 247, 0.3);
-  --accent-glow-strong: rgba(168, 85, 247, 0.5);
-  --gradient-accent: linear-gradient(135deg, #a855f7, #3b82f6, #ec4899);
+  /* Primary Color */
+  --accent: #FA243C; /* Apple Music Red/Pink */
+  --accent-hover: #FF3B50;
   
   /* Shapes & Radii */
-  --radius-sm: 8px; /* For artwork inside rows */
-  --radius-md: 12px; /* For standard cards */
-  --radius-lg: 24px;
-  --radius-full: 999px; /* For pills, buttons, tags */
+  --radius-sm: 8px; 
+  --radius-md: 12px; 
+  --radius-lg: 20px;
+  --radius-full: 9999px; 
   
   /* Typography */
-  --font-display: 'Sora', sans-serif;
-  --font-body: 'Be Vietnam Pro', sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-body);
 
   /* Typography Scales */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
-  --text-xl: 1.5rem;
+  --text-xl: 1.35rem;
   --text-2xl: 2rem;
   --text-3xl: 2.5rem;
 }
@@ -59,10 +56,12 @@ html, body {
   font-family: var(--font-body);
   overflow: hidden; 
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6, .font-display {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* ==========================================
@@ -73,8 +72,8 @@ h1, h2, h3, h4, h5, h6, .font-display {
   display: grid;
   height: 100vh;
   width: 100vw;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: 1fr;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 1fr auto;
   overflow: hidden;
 }
 
@@ -83,13 +82,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
   overflow-x: hidden;
   background: var(--bg-base);
   position: relative;
-  border-top-left-radius: 24px;
-  border-bottom-left-radius: 24px;
-  border: 1px solid var(--border-subtle);
-  border-right: none;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  /* Removed rounded borders and box-shadow for a clean edge-to-edge desktop feel */
 }
 
 .mobile-only {
@@ -100,61 +93,59 @@ h1, h2, h3, h4, h5, h6, .font-display {
   display: block;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - Apple style (minimal) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-focus);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* ==========================================
    Glassmorphism & Utilities
    ========================================== */
 
-.glass-panel, .glass {
+.glass, .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
 }
 
+/* Flat, classic iOS cards */
 .card {
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
   padding: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s;
+  border: none;
 }
 
 .card:hover {
-  background: var(--bg-glass-hover);
-  border-color: rgba(168, 85, 247, 0.3); /* Sonic pulse subtle border lift */
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  background: #2C2C2E;
+  transform: scale(1.02);
 }
 
 .song-row {
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease-in-out;
-  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease-in-out;
+  border: none;
 }
 
 .song-row:hover {
   background: var(--bg-elevated);
-  border-color: rgba(168, 85, 247, 0.3);
 }
 
 .artwork-img {
   border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .truncate {
@@ -164,24 +155,23 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 
 .page-container {
-  padding: 32px 40px;
-  max-width: 1440px; /* From design guide */
+  padding: 40px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 .section-title {
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  margin-bottom: 24px;
-  letter-spacing: -0.02em;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
 }
 
 /* Grid Layouts */
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
 }
 
 /* Forms & Buttons */
@@ -190,42 +180,37 @@ h1, h2, h3, h4, h5, h6, .font-display {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s, transform 0.1s;
   padding: 10px 20px;
   font-size: var(--text-sm);
-  letter-spacing: 0.02em;
 }
 .btn:active {
   transform: scale(0.95);
+  opacity: 0.8;
 }
 .btn-primary {
-  background: var(--gradient-accent);
+  background: var(--accent);
   color: white;
-  box-shadow: 0 4px 14px var(--accent-glow);
 }
 .btn-primary:hover {
-  box-shadow: 0 6px 20px var(--accent-glow-strong);
+  background: var(--accent-hover);
 }
 .btn-secondary {
-  background-color: var(--bg-elevated);
+  background-color: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
 }
 .btn-secondary:hover {
-  border-color: var(--border-focus);
-  background-color: var(--bg-glass-hover);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 .btn-ghost {
   background-color: transparent;
-  color: var(--text-secondary);
+  color: var(--accent);
 }
 .btn-ghost:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-elevated);
+  opacity: 0.8;
 }
 .btn-lg {
   padding: 14px 28px;
@@ -235,78 +220,68 @@ h1, h2, h3, h4, h5, h6, .font-display {
 .input {
   width: 100%;
   padding: 14px 20px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  border: none;
   background: var(--bg-elevated);
   color: white;
   font-family: inherit;
-  font-size: var(--text-sm);
-  transition: all 0.2s;
+  font-size: var(--text-base);
+  transition: background 0.2s;
 }
 .input:focus {
   outline: none;
-  border-color: var(--accent);
-  background: var(--bg-glass-hover);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: #2C2C2E;
 }
 
 /* Spinner */
 .spinner {
-  border: 3px solid var(--border-subtle);
+  border: 3px solid rgba(255,255,255,0.1);
   border-top: 3px solid var(--accent);
   border-radius: 50%;
   width: 24px;
   height: 24px;
-  animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  animation: spin 1s linear infinite;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Audio Wave Animation */
+/* Audio Wave Animation - Redesigned to be flat */
 .beat-bar {
-  background: var(--gradient-accent);
+  background: var(--accent);
   animation: beat 0.8s ease infinite alternate;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 .beat-bar:nth-child(1) { animation-delay: 0.1s; }
 .beat-bar:nth-child(2) { animation-delay: 0.3s; }
 .beat-bar:nth-child(3) { animation-delay: 0.0s; }
 .beat-bar:nth-child(4) { animation-delay: 0.2s; }
 @keyframes beat {
-  0% { height: 20%; opacity: 0.6; }
-  100% { height: 100%; opacity: 1; }
+  0% { height: 20%; }
+  100% { height: 100%; }
 }
 
-/* Range Sliders */
+/* Range Sliders - Apple Style */
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;
   background: transparent;
+  padding: 8px 0;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 14px;
-  width: 14px;
+  height: 12px;
+  width: 12px;
   border-radius: 50%;
-  background: var(--text-primary);
+  background: #FFFFFF;
   cursor: pointer;
-  margin-top: -5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  transform: scale(0.8);
-  transition: transform 0.2s;
-}
-input[type=range]:hover::-webkit-slider-thumb {
-  transform: scale(1.1);
+  margin-top: -4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px;
   cursor: pointer;
-  background: var(--border-focus);
+  background: rgba(255,255,255,0.2);
   border-radius: 2px;
-  transition: background 0.2s;
-}
-input[type=range]:hover::-webkit-slider-runnable-track {
-  background: var(--text-muted);
 }
 input[type=range]:focus {
   outline: none;
@@ -316,14 +291,15 @@ input[type=range]:focus {
 @media (max-width: 768px) {
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto auto; 
+    grid-template-rows: 1fr; 
   }
   .main-content {
     grid-row: 1;
     grid-column: 1;
     border-radius: 0;
     margin: 0;
-    padding-bottom: 140px; 
+    /* Account for bottom nav + mini player */
+    padding-bottom: 160px; 
   }
   .desktop-only {
     display: none !important;
@@ -332,10 +308,15 @@ input[type=range]:focus {
     display: block;
   }
   .page-container {
-    padding: 16px; /* Fluid mobile margin-mobile: 16px */
+    padding: 20px;
+    padding-top: env(safe-area-inset-top, 20px);
   }
   .grid-cards {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 16px;
+  }
+  .section-title {
+    font-size: 1.5rem; /* Larger on mobile for Apple Music feel */
+    font-weight: 800;
   }
 }

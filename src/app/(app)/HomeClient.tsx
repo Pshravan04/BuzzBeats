@@ -34,11 +34,11 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
             style={{
               width: '100%',
               padding: '16px 16px 16px 48px',
-              borderRadius: 'var(--radius-full)',
-              background: '#120d18',
-              border: '1px solid #1f182b',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--bg-elevated)',
+              border: 'none',
               color: 'white',
-              fontSize: '15px',
+              fontSize: '17px',
               outline: 'none',
               fontFamily: 'var(--font-body)'
             }}
@@ -82,7 +82,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
 
           {/* Card 2: Hyper-Pop Era */}
           <div style={{
-            background: '#120d18', border: '1px solid #1f182b',
+            background: 'var(--bg-elevated)', border: 'none',
             borderRadius: '16px', padding: 24, height: 280,
             display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', cursor: 'pointer'
           }}>
@@ -102,7 +102,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
 
           {/* Card 3: Liquid Gold */}
           <div style={{
-            background: '#120d18', border: '1px solid #1f182b',
+            background: 'var(--bg-elevated)', border: 'none',
             borderRadius: '16px', padding: 24, height: 280,
             display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', cursor: 'pointer'
           }}>
@@ -136,7 +136,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
             <div key={mood.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
               <div style={{
                 width: 80, height: 80, borderRadius: '50%',
-                background: '#120d18', border: '1px solid #1f182b',
+                background: 'var(--bg-elevated)', border: 'none',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'transform 0.2s',
               }}
@@ -158,8 +158,8 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
             Trending Now
           </h2>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-ghost btn-icon-sm" style={{ border: '1px solid #1f182b', borderRadius: '50%' }}><ChevronLeftIcon size={18} /></button>
-            <button className="btn btn-ghost btn-icon-sm" style={{ border: '1px solid #1f182b', borderRadius: '50%' }}><ChevronRightIcon size={18} /></button>
+            <button className="btn btn-ghost btn-icon-sm" style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}><ChevronLeftIcon size={18} /></button>
+            <button className="btn btn-ghost btn-icon-sm" style={{ background: 'var(--bg-elevated)', borderRadius: '50%' }}><ChevronRightIcon size={18} /></button>
           </div>
         </div>
 
@@ -173,7 +173,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
                 transition: 'background 0.2s',
               }}
               onClick={() => player.play(song, trendingSongs)}
-              onMouseEnter={e => { e.currentTarget.style.background = '#120d18'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
             >
               <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600 }}>{(idx + 1).toString().padStart(2, '0')}</div>

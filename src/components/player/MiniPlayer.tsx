@@ -39,12 +39,12 @@ export function MiniPlayer() {
         position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
         width: 'calc(100% - 140px)', maxWidth: 1200, minWidth: 700,
         display: 'flex', alignItems: 'center', padding: '0 24px', gap: 16, height: 72,
-        background: 'rgba(18, 13, 24, 0.75)',
-        backdropFilter: 'blur(20px) saturate(200%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(200%)',
-        border: '1px solid rgba(168, 85, 247, 0.2)',
-        borderRadius: '24px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+        background: 'var(--bg-glass)',
+        backdropFilter: 'blur(25px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(25px) saturate(200%)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
         zIndex: 100, overflow: 'hidden'
       }}
     >
@@ -54,7 +54,7 @@ export function MiniPlayer() {
         style={{ position: 'absolute', bottom: 0, left: 24, right: 24, height: 3, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', borderRadius: 4 }}
         onClick={handleProgressClick}
       >
-        <div style={{ width: `${progress * 100}%`, height: '100%', background: 'var(--gradient-accent)', borderRadius: 4, position: 'relative' }}>
+        <div style={{ width: `${progress * 100}%`, height: '100%', background: 'var(--text-primary)', borderRadius: 4, position: 'relative' }}>
           <div style={{ position: 'absolute', right: -4, top: -2, width: 8, height: 8, borderRadius: '50%', background: 'white' }} />
         </div>
       </div>
@@ -114,9 +114,9 @@ export function MiniPlayer() {
           onClick={player.togglePlay}
           style={{
             width: 44, height: 44, borderRadius: '50%',
-            background: 'var(--gradient-accent)', border: 'none', color: 'white',
+            background: 'var(--bg-elevated)', border: 'none', color: 'white',
             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-            boxShadow: '0 4px 12px var(--accent-glow)'
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
           }}
         >
           {isLoading
@@ -208,7 +208,7 @@ export function MobileMiniPlayer() {
       }}>
         {/* Progress */}
         <div style={{ height: 2, background: 'rgba(255,255,255,0.1)' }}>
-          <div style={{ height: '100%', width: `${progress * 100}%`, background: 'var(--accent)' }} />
+          <div style={{ height: '100%', width: `${progress * 100}%`, background: 'var(--text-primary)' }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px' }}>

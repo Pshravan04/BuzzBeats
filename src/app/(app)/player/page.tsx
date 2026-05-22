@@ -47,17 +47,20 @@ export default function FullPlayerPage() {
   return (
     <div style={{
       minHeight: '100%',
-      background: 'var(--gradient-player)',
+      background: 'var(--bg-base)',
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Ambient background glow */}
+      {/* Dynamic blurred background of album cover */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: `radial-gradient(ellipse at 50% 30%, var(--accent-glow-strong) 0%, transparent 70%)`,
-        opacity: isPlaying ? 1 : 0, transition: 'opacity 1s',
+        backgroundImage: `url(${currentSong.cover_url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'blur(100px) brightness(0.4)',
+        opacity: isPlaying ? 0.8 : 0.4, transition: 'opacity 1s',
       }} />
 
       {/* Header */}
@@ -85,65 +88,24 @@ export default function FullPlayerPage() {
         flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
         padding: '20px 32px 20px', position: 'relative', zIndex: 1,
       }}>
-        {/* Vinyl Disc Player */}
-        <div style={{ position: 'relative', marginBottom: 32 }}>
-          {/* Outer ring */}
+        {/* Massive Album Art */}
+        <div style={{ position: 'relative', marginBottom: 40, width: '100%', maxWidth: 360, aspectRatio: '1/1' }}>
           <div style={{
-            width: 280, height: 280,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0f 40%, #1a1a2e 60%, #0a0a0f 80%, #2a2a3e 100%)',
-            boxShadow: `0 0 0 2px var(--border-default), 0 0 0 4px rgba(0,0,0,0.5), var(--shadow-xl), ${isPlaying ? '0 0 60px var(--accent-glow-strong)' : ''}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'box-shadow 1s',
-          }}
-            className={isPlaying ? 'disc-spinning' : 'disc-paused'}
-            ref={discRef}
-          >
-            {/* Vinyl grooves */}
-            {[100, 120, 140, 160, 180, 200, 220, 240, 260].map(r => (
-              <div key={r} style={{
-                position: 'absolute',
-                width: r, height: r,
-                borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.03)',
-              }} />
-            ))}
-
-            {/* Album art in center */}
-            <div style={{
-              width: 120, height: 120, borderRadius: '50%',
-              overflow: 'hidden', position: 'relative', zIndex: 1,
-              boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
-            }}>
-              <img
-                src={currentSong.cover_url}
-                alt={currentSong.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }}
-              />
-              {/* Center hole */}
-              <div style={{
-                position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%,-50%)',
-                width: 16, height: 16, borderRadius: '50%',
-                background: 'var(--bg-base)', boxShadow: '0 0 8px rgba(0,0,0,0.8)',
-                zIndex: 2,
-              }} />
-            </div>
-
-            {/* Tonearm */}
-            <div style={{
-              position: 'absolute', right: -20, top: -20,
-              width: 60, height: 120,
-              transformOrigin: '12px 12px',
-              transform: `rotate(${isPlaying ? 20 : 5}deg)`,
-              transition: 'transform 0.5s ease',
-              pointerEvents: 'none',
-            }}>
-              <div style={{ width: 3, height: 80, background: 'linear-gradient(180deg, var(--text-secondary), var(--border-default))', borderRadius: 2 }} />
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent)', marginLeft: -3.5, marginTop: -5, boxShadow: 'var(--shadow-glow)' }} />
-            </div>
+            width: '100%', height: '100%',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            transform: isPlaying ? 'scale(1)' : 'scale(0.85)',
+            transition: 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
+          }}>
+            <img
+              src={currentSong.cover_url}
+              alt={currentSong.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }}
+            />
           </div>
+        </div>
 
           {/* Beat Visualizer */}
           {isPlaying && (
@@ -233,7 +195,7 @@ export default function FullPlayerPage() {
           <button
             className="btn btn-primary"
             onClick={player.togglePlay}
-            style={{ width: 72, height: 72, borderRadius: '50%', boxShadow: 'var(--shadow-glow-strong)' }}
+            style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--text-primary)', color: 'var(--bg-base)', boxShadow: '0 4px 14px rgba(0,0,0,0.4)' }}
             aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? <PauseIcon size={28} /> : <PlayIcon size={28} />}

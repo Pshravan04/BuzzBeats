@@ -84,7 +84,7 @@ export default function LibraryPage() {
             Your Library
           </h1>
           <div style={{ display: 'flex', gap: 16 }}>
-            <button className="btn btn-ghost btn-icon" style={{ border: '1px solid #1f182b', borderRadius: '50%' }}>
+            <button className="btn btn-ghost btn-icon" style={{ background: 'var(--bg-elevated)', border: 'none', borderRadius: '50%' }}>
               <SearchIcon size={20} />
             </button>
             <button
@@ -99,11 +99,11 @@ export default function LibraryPage() {
 
         {/* Import Banner */}
         <div style={{
-          background: 'linear-gradient(90deg, #1db954 0%, #120d18 100%)',
+          background: 'linear-gradient(90deg, #1db954 0%, var(--bg-elevated) 100%)',
           borderRadius: '16px', padding: '2px', marginBottom: 32
         }}>
           <div style={{
-            background: '#120d18', borderRadius: '14px', padding: '20px 24px',
+            background: 'var(--bg-elevated)', borderRadius: '14px', padding: '20px 24px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -130,10 +130,9 @@ export default function LibraryPage() {
               style={{
                 padding: '10px 24px', borderRadius: 'var(--radius-full)', cursor: 'pointer',
                 fontSize: '14px', fontWeight: 700, transition: 'all 0.2s',
-                background: tab === key ? 'white' : '#120d18',
-                color: tab === key ? 'black' : 'white',
-                border: '1px solid',
-                borderColor: tab === key ? 'white' : '#1f182b'
+                background: tab === key ? 'var(--text-primary)' : 'var(--bg-elevated)',
+                color: tab === key ? 'var(--bg-base)' : 'var(--text-secondary)',
+                border: 'none',
               }}
             >
               {label}
@@ -183,7 +182,7 @@ export default function LibraryPage() {
             {tab === 'playlists' && (
               <div>
                 {playlists.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
                     <div style={{ fontSize: 64, marginBottom: 16 }}>🎵</div>
                     <h2 style={{ marginBottom: 8, fontFamily: 'var(--font-display)', fontWeight: 800 }}>No playlists yet</h2>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Create your first playlist to get started.</p>
@@ -212,12 +211,12 @@ export default function LibraryPage() {
                       <Link key={playlist.id} href={`/playlist/${playlist.id}`} style={{ textDecoration: 'none' }}>
                         <div
                           style={{
-                            background: '#120d18', border: '1px solid #1f182b',
+                            background: 'var(--bg-elevated)', border: 'none',
                             borderRadius: '16px', padding: 16, cursor: 'pointer',
                             transition: 'all 0.2s', height: '100%', display: 'flex', flexDirection: 'column'
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = '#1a1325'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)' }}
-                          onMouseLeave={e => { e.currentTarget.style.background = '#120d18'; e.currentTarget.style.borderColor = '#1f182b' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass-hover)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; }}
                         >
                           <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, background: 'var(--bg-base)', marginBottom: 16, overflow: 'hidden', position: 'relative' }}>
                             {playlist.cover_url ? (
@@ -253,7 +252,7 @@ export default function LibraryPage() {
                 </div>
 
                 {likedSongs.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
                     <p style={{ color: 'var(--text-secondary)' }}>Songs you like will appear here. Start exploring!</p>
                     <Link href="/search"><button className="btn btn-secondary" style={{ marginTop: 16 }}>Explore</button></Link>
                   </div>
@@ -268,7 +267,7 @@ export default function LibraryPage() {
                           transition: 'background 0.2s', border: '1px solid transparent'
                         }}
                         onClick={() => player.play(song, likedSongs)}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#120d18'; e.currentTarget.style.borderColor = '#1f182b'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'transparent'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
                       >
                         <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600 }}>{(idx + 1).toString().padStart(2, '0')}</div>
@@ -291,7 +290,7 @@ export default function LibraryPage() {
             
             {/* Albums/Artists (Placeholders) */}
             {(tab === 'albums' || tab === 'artists') && (
-              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
                 <p style={{ color: 'var(--text-secondary)' }}>You don't have any saved {tab} yet.</p>
               </div>
             )}
