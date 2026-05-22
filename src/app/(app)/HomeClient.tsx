@@ -150,7 +150,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
           <div className="glass-panel" style={{
             borderRadius: 'var(--radius-lg)', padding: '40px',
             display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap',
-            background: 'linear-gradient(135deg, rgba(217,70,239,0.1), transparent)'
+            background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.15), transparent)'
           }}>
             <div style={{ fontSize: 64 }}>📻</div>
             <div style={{ flex: 1, minWidth: 240 }}>

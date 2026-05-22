@@ -1,31 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Sora:wght@600;700;800&display=swap');
+
 /* ==========================================
-   BuzzBeats Premium Design System
+   BuzzBeats Sonic Pulse Narrative Design System
    ========================================== */
 
 :root {
-  /* Premium Dark Mode: Deep pitch black with neon accents */
-  --bg-base: #000000;
-  --bg-elevated: #0a0a0a;
-  --bg-glass: rgba(10, 10, 10, 0.75);
-  --bg-glass-hover: rgba(30, 30, 30, 0.85);
+  /* Sonic Pulse Narrative Design System */
+  --bg-base: #080808; /* Pure black canvas */
+  --bg-elevated: #121212; /* Surface charcoal */
+  --bg-glass: rgba(168, 85, 247, 0.15); /* Primary 15% */
+  --bg-glass-hover: rgba(168, 85, 247, 0.25);
   
   --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
+  --text-secondary: #cfc2d6; /* on-surface-variant */
+  --text-muted: #988d9f; /* outline */
   
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(255, 255, 255, 0.15);
+  --border-subtle: #39323d; /* surface-variant */
+  --border-focus: rgba(168, 85, 247, 0.3);
   
-  /* Vibrant Electric Purple/Pink by default */
-  --accent: #d946ef; /* Fuchsia */
-  --accent-hover: #c026d3;
-  --accent-glow: rgba(217, 70, 239, 0.3);
-
-  --radius-sm: 8px;
-  --radius-md: 16px;
+  /* Primary Color & Gradients */
+  --accent: #a855f7;
+  --accent-hover: #b76dff;
+  --accent-glow: rgba(168, 85, 247, 0.3);
+  --accent-glow-strong: rgba(168, 85, 247, 0.5);
+  --gradient-accent: linear-gradient(135deg, #a855f7, #3b82f6, #ec4899);
+  
+  /* Shapes & Radii */
+  --radius-sm: 8px; /* For artwork inside rows */
+  --radius-md: 12px; /* For standard cards */
   --radius-lg: 24px;
-  --radius-full: 9999px;
+  --radius-full: 999px; /* For pills, buttons, tags */
   
+  /* Typography */
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Be Vietnam Pro', sans-serif;
+
+  /* Typography Scales */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -33,25 +43,6 @@
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
   --text-3xl: 2.5rem;
-}
-
-[data-theme="blue"] {
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-glow: rgba(59, 130, 246, 0.3);
-}
-
-[data-theme="green"] {
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --accent-glow: rgba(16, 185, 129, 0.3);
-}
-
-[data-theme="grey"] {
-  --accent: #e4e4e7;
-  --accent-hover: #a1a1aa;
-  --accent-glow: rgba(228, 228, 231, 0.2);
-  --text-primary: #000000; /* Contrast for light grey */
 }
 
 * {
@@ -65,9 +56,13 @@ html, body {
   width: 100%;
   background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
   overflow: hidden; 
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
 }
 
 /* ==========================================
@@ -125,7 +120,7 @@ html, body {
    Glassmorphism & Utilities
    ========================================== */
 
-.glass-panel {
+.glass-panel, .glass {
   background: var(--bg-glass);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -142,9 +137,24 @@ html, body {
 
 .card:hover {
   background: var(--bg-glass-hover);
-  border-color: var(--border-subtle);
+  border-color: rgba(168, 85, 247, 0.3); /* Sonic pulse subtle border lift */
   transform: translateY(-4px);
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.song-row {
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+}
+
+.song-row:hover {
+  background: var(--bg-elevated);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.artwork-img {
+  border-radius: var(--radius-sm);
 }
 
 .truncate {
@@ -155,11 +165,12 @@ html, body {
 
 .page-container {
   padding: 32px 40px;
-  max-width: 1800px;
+  max-width: 1440px; /* From design guide */
   margin: 0 auto;
 }
 
 .section-title {
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: 800;
   margin-bottom: 24px;
@@ -179,6 +190,7 @@ html, body {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
+  font-family: var(--font-display);
   font-weight: 700;
   cursor: pointer;
   border: none;
@@ -191,13 +203,12 @@ html, body {
   transform: scale(0.95);
 }
 .btn-primary {
-  background-color: var(--accent);
+  background: var(--gradient-accent);
   color: white;
   box-shadow: 0 4px 14px var(--accent-glow);
 }
 .btn-primary:hover {
-  background-color: var(--accent-hover);
-  box-shadow: 0 6px 20px var(--accent-glow);
+  box-shadow: 0 6px 20px var(--accent-glow-strong);
 }
 .btn-secondary {
   background-color: var(--bg-elevated);
@@ -252,7 +263,7 @@ html, body {
 
 /* Audio Wave Animation */
 .beat-bar {
-  background-color: var(--accent);
+  background: var(--gradient-accent);
   animation: beat 0.8s ease infinite alternate;
   border-radius: 2px;
 }
@@ -321,7 +332,7 @@ input[type=range]:focus {
     display: block;
   }
   .page-container {
-    padding: 20px;
+    padding: 16px; /* Fluid mobile margin-mobile: 16px */
   }
   .grid-cards {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
