@@ -117,38 +117,43 @@ export default function SearchPage() {
             {songs.length > 0 && (
               <section>
                 <h2 style={{ marginBottom: 24, fontSize: 'var(--text-xl)', fontWeight: 800 }}>Top Results</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                   {songs.map((song, idx) => (
                     <div
                       key={song.id}
                       onClick={() => player.play(song, songs)}
+                      className="song-row"
                       style={{ 
-                        display: 'grid', gridTemplateColumns: '56px 1fr auto auto', gap: 16,
-                        alignItems: 'center', padding: '12px 16px', borderRadius: 'var(--radius-md)',
-                        cursor: 'pointer', transition: 'all 0.2s',
-                        background: 'transparent'
+                        background: 'rgba(255,255,255,0.05)', borderRadius: 8, height: 64,
+                        display: 'flex', alignItems: 'center', cursor: 'pointer', overflow: 'hidden',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)', position: 'relative', transition: 'background 0.2s'
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass-hover)'; e.currentTarget.style.transform = 'scale(1.01)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.transform = 'scale(1)'; }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                        const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                        if(playBtn) { playBtn.style.opacity = '1'; playBtn.style.transform = 'scale(1)'; }
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                        if(playBtn) { playBtn.style.opacity = '0'; playBtn.style.transform = 'scale(0.8)'; }
+                      }}
                     >
-                      <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-sm)', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                      <div style={{ width: 64, height: 64, flexShrink: 0, position: 'relative' }}>
                         <img src={song.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: '0.2s' }}
-                          onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-                          onMouseLeave={e => e.currentTarget.style.opacity = '0'}
-                        >
-                           <PlayButton size={24} />
-                        </div>
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div className="truncate" style={{ fontWeight: 700, fontSize: 'var(--text-base)', marginBottom: 4 }}>{song.title}</div>
-                        <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>{song.artist?.name}</div>
+                      
+                      <div style={{ minWidth: 0, flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div className="truncate" style={{ fontWeight: 700, fontSize: 15, marginBottom: 2 }}>{song.title}</div>
+                        <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{song.artist?.name}</div>
                       </div>
-                      <div className="desktop-only" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', paddingRight: 24 }}>
-                        {song.album?.title}
-                      </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', fontWeight: 600 }}>
-                        {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
+
+                      <div className="play-btn" style={{
+                        marginRight: 16, width: 40, height: 40, borderRadius: '50%',
+                        background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'black', opacity: 0, transform: 'scale(0.8)', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', flexShrink: 0
+                      }}>
+                        <PlayButton size={20} />
                       </div>
                     </div>
                   ))}

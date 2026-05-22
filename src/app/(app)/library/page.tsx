@@ -257,29 +257,47 @@ export default function LibraryPage() {
                     <Link href="/search"><button className="btn btn-secondary" style={{ marginTop: 16 }}>Explore</button></Link>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                     {likedSongs.map((song, idx) => (
                       <div
                         key={song.id}
-                        style={{
-                          display: 'grid', gridTemplateColumns: '32px 48px 1fr auto auto auto', gap: 16, alignItems: 'center',
-                          padding: '12px 16px', borderRadius: '12px', cursor: 'pointer',
-                          transition: 'background 0.2s', border: '1px solid transparent'
-                        }}
                         onClick={() => player.play(song, likedSongs)}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.borderColor = 'transparent'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
+                        className="song-row"
+                        style={{ 
+                          background: 'rgba(255,255,255,0.05)', borderRadius: 8, height: 64,
+                          display: 'flex', alignItems: 'center', cursor: 'pointer', overflow: 'hidden',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)', position: 'relative', transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                          const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                          if(playBtn) { playBtn.style.opacity = '1'; playBtn.style.transform = 'scale(1)'; }
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                          const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                          if(playBtn) { playBtn.style.opacity = '0'; playBtn.style.transform = 'scale(0.8)'; }
+                        }}
                       >
-                        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600 }}>{(idx + 1).toString().padStart(2, '0')}</div>
-                        <img src={song.cover_url} alt={song.title} style={{ width: 48, height: 48, borderRadius: '8px', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
-                        <div style={{ minWidth: 0 }}>
-                          <div className="truncate" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{song.title}</div>
-                          <div className="truncate" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{song.artist?.name}</div>
+                        <div style={{ width: 64, height: 64, flexShrink: 0, position: 'relative' }}>
+                          <img src={song.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }} />
                         </div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500, marginRight: 24 }}>{song.album?.title || 'Single'}</div>
-                        <button className="btn btn-ghost btn-icon-sm" onClick={e => { e.stopPropagation(); }}><HeartIcon size={20} filled={true} /></button>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '13px', width: 40, textAlign: 'right' }}>
-                          {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
+                        
+                        <div style={{ minWidth: 0, flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          <div className="truncate" style={{ fontWeight: 700, fontSize: 15, marginBottom: 2 }}>{song.title}</div>
+                          <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{song.artist?.name}</div>
+                        </div>
+
+                        <button className="btn btn-ghost btn-icon-sm" onClick={e => { e.stopPropagation(); }} style={{ marginRight: 8 }}>
+                          <HeartIcon size={20} filled={true} />
+                        </button>
+
+                        <div className="play-btn" style={{
+                          marginRight: 16, width: 40, height: 40, borderRadius: '50%',
+                          background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'black', opacity: 0, transform: 'scale(0.8)', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', flexShrink: 0
+                        }}>
+                          <PlayIcon size={20} />
                         </div>
                       </div>
                     ))}

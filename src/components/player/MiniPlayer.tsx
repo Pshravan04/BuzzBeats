@@ -36,29 +36,13 @@ export function MiniPlayer() {
       role="region"
       aria-label="Music player"
       style={{
-        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-        width: 'calc(100% - 140px)', maxWidth: 1200, minWidth: 700,
-        display: 'flex', alignItems: 'center', padding: '0 24px', gap: 16, height: 72,
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(25px) saturate(200%)',
-        WebkitBackdropFilter: 'blur(25px) saturate(200%)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        zIndex: 100, overflow: 'hidden'
+        width: '100%', height: '100%',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px', gap: 16,
+        background: 'transparent',
+        zIndex: 100, position: 'relative'
       }}
     >
-      {/* Progress bar perfectly hugging bottom */}
-      <div
-        ref={progressRef}
-        style={{ position: 'absolute', bottom: 0, left: 24, right: 24, height: 3, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', borderRadius: 4 }}
-        onClick={handleProgressClick}
-      >
-        <div style={{ width: `${progress * 100}%`, height: '100%', background: 'var(--text-primary)', borderRadius: 4, position: 'relative' }}>
-          <div style={{ position: 'absolute', right: -4, top: -2, width: 8, height: 8, borderRadius: '50%', background: 'white' }} />
-        </div>
-      </div>
-
       {/* Left: Song Info */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0, paddingBottom: 4 }}>
         <Link href="/player" style={{ position: 'relative', flexShrink: 0 }}>
@@ -96,59 +80,47 @@ export function MiniPlayer() {
       </div>
 
       {/* Center Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: '0 0 auto', paddingBottom: 4 }}>
-        <button
-          className="btn btn-ghost btn-icon-sm"
-          onClick={player.toggleShuffle}
-          style={{ color: shuffle ? 'var(--accent)' : 'var(--text-muted)' }}
-        >
-          <ShuffleIcon size={18} />
-        </button>
-
-        <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} style={{ color: 'white' }}>
-          <PrevIcon size={20} />
-        </button>
-
-        {/* Big Purple Play Button */}
-        <button
-          onClick={player.togglePlay}
-          style={{
-            width: 44, height: 44, borderRadius: '50%',
-            background: 'var(--bg-elevated)', border: 'none', color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-          }}
-        >
-          {isLoading
-            ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
-            : isPlaying ? <PauseIcon size={20} /> : <PlayIcon size={20} />
-          }
-        </button>
-
-        <button className="btn btn-ghost btn-icon-sm" onClick={player.next} style={{ color: 'white' }}>
-          <NextIcon size={20} />
-        </button>
-
-        <button
-          className="btn btn-ghost btn-icon-sm"
-          onClick={player.toggleRepeat}
-          style={{ color: repeat !== 'none' ? 'var(--accent)' : 'var(--text-muted)', position: 'relative' }}
-        >
-          <RepeatIcon size={18} />
-          {repeat === 'one' && (
-            <span style={{ position: 'absolute', top: 0, right: 0, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', fontSize: 6, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>1</span>
-          )}
-        </button>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, maxWidth: 600 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
+          <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleShuffle} style={{ color: shuffle ? 'var(--accent)' : 'var(--text-muted)' }}>
+            <ShuffleIcon size={16} />
+          </button>
+          <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} style={{ color: 'var(--text-secondary)' }}>
+            <PrevIcon size={18} />
+          </button>
+          <button
+            onClick={player.togglePlay}
+            style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'white', border: 'none', color: 'black',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+            }}
+          >
+            {isLoading ? <div className="spinner" style={{ width: 14, height: 14, borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', borderTopColor: 'black' }} /> : isPlaying ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+          </button>
+          <button className="btn btn-ghost btn-icon-sm" onClick={player.next} style={{ color: 'var(--text-secondary)' }}>
+            <NextIcon size={18} />
+          </button>
+          <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleRepeat} style={{ color: repeat !== 'none' ? 'var(--accent)' : 'var(--text-muted)', position: 'relative' }}>
+            <RepeatIcon size={16} />
+            {repeat === 'one' && <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', fontSize: 6, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>1</span>}
+          </button>
+        </div>
+        
+        {/* Progress Bar inside Center Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
+          <span>{formatTime(currentTime)}</span>
+          <div ref={progressRef} style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', borderRadius: 2 }} onClick={handleProgressClick}>
+            <div style={{ width: `${progress * 100}%`, height: '100%', background: 'white', borderRadius: 2 }} />
+          </div>
+          <span>{formatTime(player.duration)}</span>
+        </div>
       </div>
 
-      {/* Right — Time, Queue, Volume */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'flex-end', paddingBottom: 4 }}>
-        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
-          {formatTime(currentTime)} / {formatTime(player.duration)}
-        </div>
-
+      {/* Right — Queue, Volume */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'flex-end' }}>
         <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>
-          <QueueIcon size={18} />
+          <QueueIcon size={16} />
         </button>
 
         <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>

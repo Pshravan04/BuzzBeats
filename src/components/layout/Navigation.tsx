@@ -19,27 +19,27 @@ export function Sidebar() {
 
   return (
     <nav className="sidebar" role="navigation" aria-label="Main navigation" style={{
-      display: 'flex', flexDirection: 'column', paddingTop: 32, paddingBottom: 24,
-      background: 'var(--bg-elevated)', borderRight: '1px solid var(--border-subtle)', height: '100%',
+      display: 'flex', flexDirection: 'column', paddingTop: 24, paddingBottom: 24,
+      background: 'var(--bg-base)', height: '100%',
     }}>
-      {/* Logo & Subtitle */}
-      <div style={{ padding: '0 24px', marginBottom: 48 }}>
-        <Link href="/" title="BuzzBeats" style={{ display: 'inline-block', textDecoration: 'none' }}>
-          <h1 style={{ 
-            fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 800, 
-            margin: 0, letterSpacing: '-0.03em',
-            color: 'var(--accent)'
-          }}>
-            BuzzBeats
-          </h1>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 2, fontWeight: 500 }}>
-            Premium Listener
+      {/* Logo */}
+      <div style={{ padding: '0 24px', marginBottom: 32 }}>
+        <Link href="/" title="BuzzBeats" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+          <div style={{ width: 32, height: 32, background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' }}>
+            <PlayCircleIcon size={20} />
           </div>
+          <h1 style={{ 
+            fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 800, 
+            margin: 0, letterSpacing: '-0.02em',
+            color: 'white'
+          }}>
+            Freefy
+          </h1>
         </Link>
       </div>
 
       {/* Main nav */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, padding: '0 12px' }}>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/' && pathname.startsWith(href));
           return (
@@ -49,32 +49,21 @@ export function Sidebar() {
               title={label}
               style={{
                 display: 'flex', alignItems: 'center', gap: 16,
-                padding: '12px 24px',
-                color: active ? 'white' : 'var(--text-muted)',
-                position: 'relative',
+                padding: '10px 12px',
+                color: active ? 'white' : 'var(--text-secondary)',
                 textDecoration: 'none',
-                fontWeight: active ? 700 : 600,
+                fontWeight: 600,
                 transition: 'color 0.2s',
               }}
               onMouseEnter={e => {
-                if(!active) e.currentTarget.style.color = 'var(--text-secondary)';
+                if(!active) e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={e => {
-                if(!active) e.currentTarget.style.color = 'var(--text-muted)';
+                if(!active) e.currentTarget.style.color = 'var(--text-secondary)';
               }}
             >
-              {active && (
-                <div style={{
-                  position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
-                  width: 4, height: 24, borderRadius: '0 4px 4px 0',
-                  background: 'var(--accent)'
-                }} />
-              )}
-              <div style={{
-                color: active ? 'var(--accent)' : 'currentColor',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                <Icon size={20} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={24} />
               </div>
               <span style={{ fontSize: '14px' }}>{label}</span>
             </Link>
@@ -124,16 +113,13 @@ export function MobileNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: '80px',
-        background: 'var(--bg-glass)',
-        borderTop: '1px solid var(--border-subtle)',
+        height: '65px',
+        background: 'linear-gradient(transparent, rgba(0,0,0,0.9) 20%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 50,
         paddingBottom: 'env(safe-area-inset-bottom)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       }}
     >
       {[

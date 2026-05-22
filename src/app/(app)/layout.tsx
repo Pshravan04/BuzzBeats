@@ -13,17 +13,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       {/* Desktop Sidebar */}
-      <div className="desktop-only" style={{ gridRow: '1', gridColumn: '1' }}>
+      <div className="sidebar-area desktop-only">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <main className="main-content" style={{ gridRow: '1', gridColumn: '2' }} id="main-content">
+      <main className="main-content" id="main-content">
         {children}
       </main>
 
       {/* Desktop Player Bar */}
-      <div className="desktop-only" style={{ gridRow: '2', gridColumn: '1 / -1' }}>
+      <div className="player-area desktop-only">
         <MiniPlayer />
       </div>
 

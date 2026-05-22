@@ -34,15 +34,41 @@ const FETCH_HEADERS = {
 export async function searchSongs(rawQuery: string, limit = 20): Promise<Song[]> {
   try {
     // Clean conversational stop words that confuse JioSaavn's literal search engine
-    const query = rawQuery.replace(/\b(song|of|by|track|music)\b/ig, '').replace(/\s+/g, ' ').trim();
-    
-    const searchUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
+    let cleanedQuery = rawQuery.replace(/\b(song|of|by|track|music)\b/ig, '').replace(/\s+/g, ' ').trim();
+    if (!cleanedQuery) cleanedQuery = rawQuery;
+
+    let songIds = '';
+
+    // First try standard search
+    const searchUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(cleanedQuery)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
     const res = await fetch(searchUrl, { headers: FETCH_HEADERS });
     const json = await res.json();
     
-    if (!json.results || !Array.isArray(json.results)) return [];
+    if (json.results && Array.isArray(json.results) && json.results.length > 0) {
+      songIds = json.results.map((r: any) => r.id).join(',');
+    }
 
-    const songIds = json.results.map((r: any) => r.id).join(',');
+    // Fallback to autocomplete if no results found
+    if (!songIds) {
+      const autoUrl = `${JIOSAAVN_API}?__call=autocomplete.get&query=${encodeURIComponent(cleanedQuery)}&_format=json&_marker=0&ctx=web6dot0`;
+      const autoRes = await fetch(autoUrl, { headers: FETCH_HEADERS });
+      const autoJson = await autoRes.json();
+      
+      const topQuery = autoJson?.topquery?.data?.[0];
+      if (topQuery && topQuery.title) {
+        const retryUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(topQuery.title)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
+        const retryRes = await fetch(retryUrl, { headers: FETCH_HEADERS });
+        const retryJson = await retryRes.json();
+        if (retryJson.results && Array.isArray(retryJson.results) && retryJson.results.length > 0) {
+          songIds = retryJson.results.map((r: any) => r.id).join(',');
+        }
+      }
+
+      if (!songIds && autoJson.songs && autoJson.songs.data && Array.isArray(autoJson.songs.data)) {
+        songIds = autoJson.songs.data.map((r: any) => r.id).join(',');
+      }
+    }
+
     if (!songIds) return [];
 
     // Fetch details for all found IDs in one call
