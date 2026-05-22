@@ -88,48 +88,8 @@ export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
 
 export async function getTrendingSongs(): Promise<Song[]> {
   try {
-    const searchUrl = `${JIOSAAVN_API}?__call=webapi.get&token=8MT-LGlEbsc_&type=playlist&p=1&n=20&includeMetaTags=0&ctx=web6dot0&api_version=4&_format=json&_marker=0`;
-    const res = await fetch(searchUrl);
-    const json = await res.json();
-    
-    const songs: Song[] = [];
-    if (json.list && Array.isArray(json.list)) {
-      for (const track of json.list) {
-        if (!track.encrypted_media_url) continue;
-
-        const coverUrl = formatImageUrl(track.image);
-        const artistName = track.primary_artists || track.singers || 'Unknown Artist';
-        
-        songs.push({
-          id: track.id,
-          title: track.title?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Title',
-          artist_id: track.primary_artists_id || track.id,
-          artist: {
-            id: track.primary_artists_id || track.id,
-            name: artistName,
-            verified: false,
-            follower_count: 0,
-            genres: [],
-            image_url: coverUrl
-          },
-          album_id: track.albumid,
-          album: {
-            id: track.albumid,
-            title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
-            artist_id: track.primary_artists_id || track.id,
-            cover_url: coverUrl,
-            release_date: track.year || '',
-            genre: track.language || '',
-            song_count: 1
-          },
-          duration: parseInt(track.duration, 10) || 0,
-          audio_url: decryptUrl(track.encrypted_media_url),
-          cover_url: coverUrl,
-          play_count: parseInt(track.play_count, 10) || 0
-        });
-      }
-    }
-    return songs;
+    // The previous playlist token is dead, so we just search for top hits
+    return await searchSongs('top hits', 20);
   } catch (error) {
     console.error('Error fetching trending:', error);
     return [];
