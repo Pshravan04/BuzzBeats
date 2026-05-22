@@ -107,22 +107,7 @@ export default function FullPlayerPage() {
           </div>
         </div>
 
-          {/* Beat Visualizer */}
-          {isPlaying && (
-            <div style={{
-              position: 'absolute', bottom: -24, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', gap: 4, alignItems: 'flex-end', height: 32,
-            }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
-                <div
-                  key={i}
-                  className="beat-bar"
-                  style={{ width: 4, background: 'var(--gradient-accent)', borderRadius: 2 }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+
 
         {/* Song Info */}
         <div style={{ textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
