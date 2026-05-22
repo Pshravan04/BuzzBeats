@@ -40,14 +40,14 @@ export default function SearchPage() {
   }, [query, search]);
 
   const BROWSE_CATEGORIES = [
-    { label: 'Pop Hits', color: '#ec4899', emoji: '🎤' },
-    { label: 'Hip-Hop', color: '#f59e0b', emoji: '🎧' },
-    { label: 'Electronic', color: '#3b82f6', emoji: '🎛️' },
-    { label: 'R&B', color: '#8b5cf6', emoji: '🎵' },
-    { label: 'Indie', color: '#10b981', emoji: '🎸' },
-    { label: 'Lo-Fi', color: '#6b7280', emoji: '☕' },
-    { label: 'Classical', color: '#f97316', emoji: '🎻' },
-    { label: 'Jazz', color: '#ef4444', emoji: '🎺' },
+    { label: 'Electronic', gradient: 'linear-gradient(90deg, #b76dff 0%, #f751a1 100%)', textColor: 'var(--text-primary)' },
+    { label: 'Indie', gradient: 'linear-gradient(to bottom right, #f751a1, #8c0053)', textColor: 'white' },
+    { label: 'Lo-Fi', gradient: 'linear-gradient(to bottom right, #0566d9, #004395)', textColor: 'white' },
+    { label: 'Hip Hop', gradient: 'linear-gradient(to bottom right, #FF8A00, #FF2E00)', textColor: 'white' },
+    { label: 'Ambient', gradient: 'linear-gradient(to bottom right, #00C2FF, #0047FF)', textColor: 'white' },
+    { label: 'Rock', gradient: 'linear-gradient(to bottom right, #93000a, #690005)', textColor: 'white' },
+    { label: 'Pop Hits', gradient: 'linear-gradient(to bottom right, #ec4899, #be185d)', textColor: 'white' },
+    { label: 'Jazz', gradient: 'linear-gradient(to bottom right, #8b5cf6, #5b21b6)', textColor: 'white' },
   ];
 
   return (
@@ -160,29 +160,56 @@ export default function SearchPage() {
         {/* Browse Categories (shown when no search) */}
         {!hasSearched && (
           <>
-            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 24, letterSpacing: '-0.02em' }}>Browse Categories</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-              {BROWSE_CATEGORIES.map(({ label, color, emoji }) => (
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 24, letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>Browse Categories</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 24 }}>
+              {BROWSE_CATEGORIES.map(({ label, gradient, textColor }) => (
                 <button
                   key={label}
                   onClick={() => setQuery(label)}
                   style={{
-                    background: `linear-gradient(135deg, ${color}88, ${color})`,
-                    borderRadius: 'var(--radius-lg)',
-                    padding: '24px 20px',
+                    background: gradient,
+                    borderRadius: 'var(--radius-xl)',
+                    padding: '24px',
                     textAlign: 'left',
                     cursor: 'pointer',
                     position: 'relative', overflow: 'hidden',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     border: 'none',
-                    minHeight: 120,
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+                    aspectRatio: '1 / 1',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05) translateY(-4px)'; e.currentTarget.style.boxShadow = `0 12px 30px ${color}66`; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1) translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.3)'; }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'scale(1.02) translateY(-4px)';
+                    const blur = e.currentTarget.querySelector('.blur-glow') as HTMLElement;
+                    const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                    if(blur) blur.style.transform = 'scale(1.5)';
+                    if(play) { play.style.opacity = '1'; play.style.transform = 'translateY(0)'; }
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                    const blur = e.currentTarget.querySelector('.blur-glow') as HTMLElement;
+                    const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
+                    if(blur) blur.style.transform = 'scale(1)';
+                    if(play) { play.style.opacity = '0'; play.style.transform = 'translateY(8px)'; }
+                  }}
                 >
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>{emoji}</div>
-                  <div style={{ fontWeight: 800, color: 'white', fontSize: 'var(--text-lg)', letterSpacing: '0.02em' }}>{label}</div>
+                  <div style={{ fontWeight: 600, color: textColor, fontSize: 'var(--text-xl)', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
+                  
+                  <div className="play-btn" style={{
+                    opacity: 0, transform: 'translateY(8px)', position: 'absolute', bottom: 16, right: 16,
+                    background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                    padding: 8, borderRadius: 'var(--radius-full)', transition: 'all 0.3s', zIndex: 2
+                  }}>
+                    <PlayButton size={24} />
+                  </div>
+                  
+                  <div className="blur-glow" style={{
+                    position: 'absolute', right: -16, bottom: -16, width: 96, height: 96,
+                    background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-full)', filter: 'blur(24px)',
+                    transition: 'transform 0.5s', zIndex: 1
+                  }}></div>
                 </button>
               ))}
             </div>
