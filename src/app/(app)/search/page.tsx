@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { usePlayer } from '@/context/PlayerContext';
-import { searchSongs } from '@/lib/api/jiosaavn';
 import type { Song } from '@/types';
 
 export default function SearchPage() {
@@ -23,8 +22,10 @@ export default function SearchPage() {
     setHasSearched(true);
 
     try {
-      const results = await searchSongs(q, 30);
-      setSongs(results);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=30`);
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+      setSongs(data.results || []);
     } catch (e) {
       console.error(e);
       setSongs([]);
