@@ -36,20 +36,25 @@ export function MiniPlayer() {
       role="region"
       aria-label="Music player"
       style={{
+        position: 'absolute', bottom: 24, left: 24, right: 24,
         display: 'flex',
         alignItems: 'center',
         padding: '0 24px',
         gap: 16,
-        height: '100%',
-        background: 'var(--bg-surface)',
-        position: 'relative',
+        height: 80,
+        background: 'var(--bg-glass)',
+        backdropFilter: 'blur(30px) saturate(200%)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-full)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+        zIndex: 100,
       }}
     >
       {/* Progress bar at top */}
       <div
         ref={progressRef}
         className="progress-bar"
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, margin: 0, borderRadius: 0 }}
+        style={{ position: 'absolute', top: -1, left: 24, right: 24, zIndex: 10, margin: 0, borderRadius: 'var(--radius-full)' }}
         onClick={handleProgressClick}
         aria-label="Playback progress"
       >
@@ -60,9 +65,10 @@ export function MiniPlayer() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
         <Link href="/player" style={{ position: 'relative', flexShrink: 0 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: 'var(--radius-md)', overflow: 'hidden',
-            boxShadow: isPlaying ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
-            transition: 'box-shadow var(--transition-slow)',
+            width: 56, height: 56, borderRadius: '50%', overflow: 'hidden',
+            boxShadow: isPlaying ? '0 0 20px var(--accent-glow)' : 'none',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            animation: isPlaying ? 'spin 12s linear infinite' : 'none',
           }}>
             <img
               src={currentSong.cover_url || '/images/default-album.jpg'}
@@ -229,19 +235,22 @@ export function MobileMiniPlayer() {
       className="mobile-only"
       style={{
         position: 'fixed',
-        bottom: 'calc(var(--mobile-nav-height) + env(safe-area-inset-bottom))',
-        left: 8, right: 8,
-        zIndex: 'var(--z-player)',
+        bottom: 'calc(80px + env(safe-area-inset-bottom) + 12px)',
+        left: 12, right: 12,
+        zIndex: 50,
       }}
     >
-      <div className="glass" style={{
+      <div style={{
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
-        boxShadow: 'var(--shadow-xl)',
+        background: 'var(--bg-glass)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
       }}>
         {/* Progress */}
-        <div style={{ height: 2, background: 'var(--border-default)' }}>
-          <div style={{ height: '100%', width: `${progress * 100}%`, background: 'var(--gradient-accent)' }} />
+        <div style={{ height: 2, background: 'rgba(255,255,255,0.1)' }}>
+          <div style={{ height: '100%', width: `${progress * 100}%`, background: 'var(--accent)' }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px' }}>

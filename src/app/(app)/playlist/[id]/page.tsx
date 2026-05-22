@@ -85,75 +85,80 @@ export default function PlaylistPage() {
     <div style={{ minHeight: '100%' }}>
       {/* Hero */}
       <div style={{
-        background: 'var(--gradient-primary)',
-        padding: '40px 32px 32px',
-        display: 'flex', alignItems: 'flex-end', gap: 24, flexWrap: 'wrap',
+        background: 'var(--bg-glass)',
+        padding: '60px 40px 40px',
+        display: 'flex', alignItems: 'flex-end', gap: 32, flexWrap: 'wrap',
+        borderBottom: '1px solid var(--border-subtle)',
       }}>
         {/* Cover */}
         {playlist.cover_url ? (
-          <img src={playlist.cover_url} alt={playlist.name} style={{ width: 200, height: 200, borderRadius: 'var(--radius-lg)', objectFit: 'cover', boxShadow: 'var(--shadow-xl)', flexShrink: 0 }} />
+          <div style={{ width: 240, height: 240, borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', flexShrink: 0 }}>
+            <img src={playlist.cover_url} alt={playlist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
         ) : (
           <div style={{
-            width: 200, height: 200, borderRadius: 'var(--radius-lg)',
+            width: 240, height: 240, borderRadius: 'var(--radius-lg)',
             background: 'var(--gradient-accent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 80, boxShadow: 'var(--shadow-xl)', flexShrink: 0,
+            fontSize: 80, boxShadow: '0 20px 40px rgba(0,0,0,0.5)', flexShrink: 0,
           }}>🎵</div>
         )}
 
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>
+        <div style={{ flex: 1, minWidth: 240 }}>
+          <div style={{ fontSize: 'var(--text-sm)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: 12 }}>
             {playlist.is_collaborative ? '🤝 Collaborative Playlist' : 'Playlist'}
           </div>
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', fontWeight: 900, marginBottom: 8, lineHeight: 1.1 }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 900, marginBottom: 12, lineHeight: 1.1, letterSpacing: '-0.03em' }}>
             {playlist.name}
           </h1>
           {playlist.description && (
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>{playlist.description}</p>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 16, fontSize: 'var(--text-lg)' }}>{playlist.description}</p>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-            <span>{(playlist.owner as any)?.display_name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 'var(--text-base)', color: 'var(--text-secondary)', fontWeight: 600 }}>
+            <span style={{ color: 'var(--text-primary)' }}>{(playlist.owner as any)?.display_name}</span>
             <span>•</span>
             <span>{songs.length} songs</span>
-            {playlist.is_public && <span className="badge">Public</span>}
+            {playlist.is_public && <span className="badge" style={{ background: 'var(--accent)', color: 'white' }}>Public</span>}
           </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div style={{ padding: '20px 32px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', borderBottom: '1px solid var(--border-subtle)' }}>
+      <div style={{ padding: '24px 40px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         <button
-          className="btn btn-primary btn-lg"
+          className="btn"
+          style={{ background: 'var(--accent)', color: '#fff', borderRadius: '50px', padding: '16px 40px', fontSize: 'var(--text-lg)', fontWeight: 800, border: 'none' }}
           onClick={() => songs.length && player.playQueue(songs, 0)}
           disabled={songs.length === 0}
           id="playlist-play-btn"
         >
-          <PlayIcon size={22} />
+          <PlayIcon size={24} />
           Play
         </button>
         <button
-          className="btn btn-secondary"
+          className="btn"
+          style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', borderRadius: '50px', padding: '16px 24px', fontWeight: 700, border: '1px solid var(--border-subtle)' }}
           onClick={() => { if (songs.length) { player.playQueue(songs, Math.floor(Math.random() * songs.length)); } }}
           disabled={songs.length === 0}
         >
-          <ShuffleIcon size={18} />
+          <ShuffleIcon size={20} />
           Shuffle
         </button>
 
         {isOwner && (
           <>
-            <button className="btn btn-ghost" onClick={() => setShowShare(true)}>
-              <ShareIcon size={18} />
+            <button className="btn btn-ghost" style={{ borderRadius: '50px', padding: '16px 24px', fontWeight: 700 }} onClick={() => setShowShare(true)}>
+              <ShareIcon size={20} />
               Share
             </button>
             {playlist.is_collaborative && (
-              <button className="btn btn-ghost" onClick={() => setShowInvite(true)}>
-                <UserPlusIcon size={18} />
+              <button className="btn btn-ghost" style={{ borderRadius: '50px', padding: '16px 24px', fontWeight: 700 }} onClick={() => setShowInvite(true)}>
+                <UserPlusIcon size={20} />
                 Invite
               </button>
             )}
             <Link href={`/room/create?playlist=${id}`}>
-              <button className="btn btn-secondary">
+              <button className="btn btn-ghost" style={{ borderRadius: '50px', padding: '16px 24px', fontWeight: 700 }}>
                 🎧 Listen Together
               </button>
             </Link>
@@ -162,16 +167,17 @@ export default function PlaylistPage() {
       </div>
 
       {/* Songs list */}
-      <div style={{ padding: '16px 32px' }}>
+      <div style={{ padding: '0 40px 100px' }}>
         {songs.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🎵</div>
-            <p style={{ color: 'var(--text-secondary)' }}>This playlist is empty. Start adding songs!</p>
+          <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+            <div style={{ fontSize: 64, marginBottom: 24 }}>🎵</div>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 12 }}>This playlist is empty</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-lg)' }}>Find some tracks and add them here!</p>
           </div>
         ) : (
           <>
             {/* Header row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr auto auto', gap: 16, padding: '8px 12px', color: 'var(--text-muted)', fontSize: 'var(--text-xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, borderBottom: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '56px 1fr 1fr auto auto', gap: 16, padding: '16px', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16, borderBottom: '1px solid var(--border-subtle)' }}>
               <span>#</span>
               <span>Title</span>
               <span className="desktop-only">Album</span>
@@ -183,28 +189,29 @@ export default function PlaylistPage() {
               <div
                 key={song.id}
                 style={{
-                  display: 'grid', gridTemplateColumns: '40px 1fr 1fr auto auto',
-                  gap: 16, padding: '10px 12px', alignItems: 'center',
+                  display: 'grid', gridTemplateColumns: '56px 1fr 1fr auto auto',
+                  gap: 16, padding: '12px 16px', alignItems: 'center',
                   borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                  background: player.currentSong?.id === song.id ? 'var(--accent-glow)' : 'transparent',
-                  transition: 'background 0.15s',
+                  background: player.currentSong?.id === song.id ? 'var(--bg-glass-hover)' : 'transparent',
+                  transition: 'all 0.2s',
+                  boxShadow: player.currentSong?.id === song.id ? 'inset 0 0 0 1px var(--accent)' : 'none',
                 }}
                 onClick={() => player.play(song, songs)}
                 onMouseEnter={e => { if (player.currentSong?.id !== song.id) e.currentTarget.style.background = 'var(--bg-glass)'; }}
                 onMouseLeave={e => { if (player.currentSong?.id !== song.id) e.currentTarget.style.background = 'transparent'; }}
               >
-                <div style={{ color: player.currentSong?.id === song.id ? 'var(--accent)' : 'var(--text-muted)', fontSize: 'var(--text-sm)', textAlign: 'right' }}>
+                <div style={{ color: player.currentSong?.id === song.id ? 'var(--accent)' : 'var(--text-muted)', fontSize: 'var(--text-base)', textAlign: 'right', fontWeight: 700 }}>
                   {player.currentSong?.id === song.id && player.isPlaying
                     ? <WaveIcon />
                     : idx + 1
                   }
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                  <img src={song.cover_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 0 }}>
+                  <img src={song.cover_url} alt="" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
                   <div style={{ minWidth: 0 }}>
-                    <div className="truncate" style={{ fontWeight: 500, color: player.currentSong?.id === song.id ? 'var(--accent)' : 'var(--text-primary)' }}>{song.title}</div>
+                    <div className="truncate" style={{ fontWeight: 700, fontSize: 'var(--text-base)', color: player.currentSong?.id === song.id ? 'var(--accent)' : 'var(--text-primary)' }}>{song.title}</div>
                     <Link href={`/artist/${song.artist_id}`} onClick={e => e.stopPropagation()}>
-                      <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>{song.artist?.name}</div>
+                      <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginTop: 4 }}>{song.artist?.name}</div>
                     </Link>
                   </div>
                 </div>
@@ -219,9 +226,9 @@ export default function PlaylistPage() {
                   style={{ color: song.is_liked ? 'var(--accent)' : 'var(--text-muted)' }}
                   aria-label={song.is_liked ? 'Unlike' : 'Like'}
                 >
-                  <HeartIcon size={18} filled={song.is_liked} />
+                  <HeartIcon size={20} filled={song.is_liked} />
                 </button>
-                <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', whiteSpace: 'nowrap' }}>
+                <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                   {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
                 </div>
               </div>

@@ -4,15 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
 import { useAuth } from '@/context/AuthContext';
-import type { Song, Artist, Album } from '@/types';
+import type { Song } from '@/types';
 
 interface HomeClientProps {
-  featuredSongs: Song[];
-  trendingArtists: Artist[];
-  newReleases: Album[];
+  trendingSongs: Song[];
+  popularHits: Song[];
+  newReleases: Song[];
 }
 
-export default function HomeClient({ featuredSongs, trendingArtists, newReleases }: HomeClientProps) {
+export default function HomeClient({ trendingSongs, popularHits, newReleases }: HomeClientProps) {
   const { user } = useAuth();
   const player = usePlayer();
   const [greeting, setGreeting] = useState('');
@@ -24,231 +24,148 @@ export default function HomeClient({ featuredSongs, trendingArtists, newReleases
     else setGreeting('Good evening');
   }, []);
 
-  const featured = featuredSongs[0];
+  const featured = trendingSongs.length > 0 ? trendingSongs[0] : null;
 
   return (
-    <div style={{ minHeight: '100%' }}>
+    <div style={{ minHeight: '100%', paddingBottom: 60 }}>
       {/* Hero Section */}
       <div style={{
-        background: 'var(--gradient-hero)',
-        padding: '48px 32px 32px',
+        padding: '56px 40px 40px',
         position: 'relative',
         overflow: 'hidden',
+        borderBottom: '1px solid var(--border-subtle)'
       }}>
         {/* Animated background orbs */}
         <div style={{
-          position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
+          position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0
         }}>
           {[
-            { size: 400, top: -100, left: -100, delay: '0s' },
-            { size: 300, top: 50, right: -50, delay: '2s' },
-            { size: 200, bottom: -50, left: '40%', delay: '1s' },
+            { size: 500, top: -150, left: -100, delay: '0s', opacity: 0.15 },
+            { size: 400, top: 100, right: -150, delay: '2s', opacity: 0.1 },
           ].map((orb, i) => (
             <div key={i} style={{
               position: 'absolute',
               width: orb.size, height: orb.size,
               borderRadius: '50%',
-              background: `radial-gradient(circle, var(--accent-glow-strong) 0%, transparent 70%)`,
+              background: `radial-gradient(circle, var(--accent) 0%, transparent 70%)`,
               top: orb.top, left: orb.left, right: (orb as any).right, bottom: (orb as any).bottom,
-              animation: `float 6s ease-in-out ${orb.delay} infinite`,
-              opacity: 0.5,
+              animation: `float 8s ease-in-out ${orb.delay} infinite`,
+              opacity: orb.opacity,
             }} />
           ))}
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', marginBottom: 8 }}>
-            {greeting}{user ? `, ${user.display_name.split(' ')[0]}` : ''}!
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 32 }}>
-            Discover what's buzzing today 🎵
-          </p>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 400px' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', marginBottom: 8, fontSize: 'var(--text-3xl)', fontWeight: 800, letterSpacing: '-0.03em' }}>
+              {greeting}{user ? `, ${user.display_name.split(' ')[0]}` : ''}.
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 'var(--text-lg)' }}>
+              Ready to dive into the music? 🎧
+            </p>
 
-          {/* Featured Song */}
+            <div style={{ display: 'flex', gap: 16 }}>
+              <button className="btn btn-primary btn-lg" onClick={() => featured && player.play(featured, trendingSongs)}>
+                Play Trending
+              </button>
+              <Link href="/search" className="btn btn-secondary btn-lg">
+                Explore
+              </Link>
+            </div>
+          </div>
+
+          {/* Featured Song Hero Card */}
           {featured && (
             <div
-              className="card-glass"
+              className="card glass-panel"
               style={{
-                display: 'flex', alignItems: 'center', gap: 20,
-                padding: 20, maxWidth: 560, cursor: 'pointer',
+                flex: '0 1 340px', cursor: 'pointer', padding: 24, borderRadius: 'var(--radius-lg)',
+                border: '1px solid rgba(255,255,255,0.1)'
               }}
-              onClick={() => player.play(featured, featuredSongs)}
+              onClick={() => player.play(featured, trendingSongs)}
             >
-              <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{ position: 'relative', marginBottom: 16, borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
                 <img
                   src={featured.cover_url}
                   alt={featured.title}
-                  style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', objectFit: 'cover' }}
-                  onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
+                  style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', display: 'block' }}
                 />
                 <div style={{
-                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(0,0,0,0.3)', borderRadius: 'var(--radius-md)',
-                  opacity: 0, transition: 'opacity 0.2s',
+                  position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s'
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = '0'; }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '0'}
                 >
-                  <PlayButton size={32} />
+                  <div style={{ background: 'var(--accent)', borderRadius: '50%', width: 64, height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <PlayButton size={32} />
+                  </div>
                 </div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600, marginBottom: 4 }}>
-                  ✨ TRENDING NOW
-                </div>
-                <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 4 }} className="truncate">{featured.title}</h2>
-                <p className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
-                  {featured.artist?.name}
-                </p>
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 800, marginBottom: 8, letterSpacing: '0.1em' }}>
+                #1 ON BUZZBEATS
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={(e) => { e.stopPropagation(); player.play(featured, featuredSongs); }}
-              >
-                Play
-              </button>
+              <h2 className="truncate" style={{ fontSize: 'var(--text-xl)', marginBottom: 4, fontWeight: 800 }}>{featured.title}</h2>
+              <p className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
+                {featured.artist?.name}
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Content Sections */}
-      <div className="page-container" style={{ paddingTop: 32 }}>
-
-        {/* Quick Play Grid */}
-        <section style={{ marginBottom: 40 }} aria-labelledby="quick-play-title">
-          <h2 id="quick-play-title" className="section-title">
-            Quick Play
-            <Link href="/library">See all</Link>
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 8,
-          }}>
-            {[
-              { label: 'Liked Songs', icon: '💜', href: '/library?tab=liked', gradient: 'linear-gradient(135deg, #4c1d95, #7c3aed)' },
-              { label: 'Recently Played', icon: '🕐', href: '/library?tab=recent', gradient: 'linear-gradient(135deg, #1e3a5f, #3b82f6)' },
-              { label: 'Top Mixes', icon: '🎧', href: '/library?tab=mixes', gradient: 'linear-gradient(135deg, #831843, #ec4899)' },
-              { label: 'Chill Vibes', icon: '🌊', href: '/library?tab=chill', gradient: 'linear-gradient(135deg, #064e3b, #10b981)' },
-            ].map(({ label, icon, href, gradient }) => (
-              <Link key={label} href={href}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)',
-                  overflow: 'hidden', cursor: 'pointer', transition: 'all 0.2s',
-                  border: '1px solid var(--border-subtle)',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass-hover)'; e.currentTarget.style.transform = 'scale(1.01)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-elevated)'; e.currentTarget.style.transform = 'scale(1)'; }}
-                >
-                  <div style={{ width: 56, height: 56, background: gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>
-                    {icon}
-                  </div>
-                  <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{label}</span>
-                </div>
-              </Link>
+      <div className="page-container">
+        {/* Trending Songs */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 className="section-title">🔥 Trending Right Now</h2>
+          <div style={{ display: 'flex', gap: 20, overflowX: 'auto', paddingBottom: 24, scrollbarWidth: 'none' }}>
+            {trendingSongs.slice(1, 11).map((song, idx) => (
+              <SongCard key={song.id} song={song} onClick={() => player.play(song, trendingSongs)} rank={idx + 2} />
             ))}
           </div>
         </section>
 
-        {/* Trending Songs */}
-        <section style={{ marginBottom: 40 }} aria-labelledby="trending-title">
-          <h2 id="trending-title" className="section-title">
-            🔥 Trending Now
-            <Link href="/search">Explore</Link>
-          </h2>
-          <div className="scroll-row">
-            {featuredSongs.slice(0, 10).map((song, idx) => (
-              <SongCard key={song.id} song={song} onClick={() => player.play(song, featuredSongs)} rank={idx + 1} />
+        {/* Popular Hits */}
+        <section style={{ marginBottom: 48 }}>
+          <h2 className="section-title">🌟 Popular Hits</h2>
+          <div className="grid-cards">
+            {popularHits.slice(0, 6).map((song) => (
+              <SongCard key={song.id} song={song} onClick={() => player.play(song, popularHits)} />
             ))}
           </div>
         </section>
 
         {/* New Releases */}
-        <section style={{ marginBottom: 40 }} aria-labelledby="new-releases-title">
-          <h2 id="new-releases-title" className="section-title">
-            🆕 New Releases
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 500 }}>Albums & EPs</span>
-          </h2>
+        <section style={{ marginBottom: 48 }}>
+          <h2 className="section-title">🆕 Fresh Drops</h2>
           <div className="grid-cards">
-            {newReleases.map(album => (
-              <AlbumCard key={album.id} album={album} />
-            ))}
-          </div>
-        </section>
-
-        {/* Trending Artists */}
-        <section style={{ marginBottom: 40 }} aria-labelledby="artists-title">
-          <h2 id="artists-title" className="section-title">
-            🌟 Trending Artists
-          </h2>
-          <div className="scroll-row">
-            {trendingArtists.map(artist => (
-              <ArtistCard key={artist.id} artist={artist} />
+            {newReleases.slice(0, 6).map((song) => (
+              <SongCard key={song.id} song={song} onClick={() => player.play(song, newReleases)} />
             ))}
           </div>
         </section>
 
         {/* Collaborative Listening CTA */}
         <section style={{ marginBottom: 40 }}>
-          <div style={{
-            background: 'var(--gradient-card)',
-            border: '1px solid var(--border-default)',
-            borderRadius: 'var(--radius-xl)',
-            padding: '32px',
-            display: 'flex', alignItems: 'center', gap: 24,
-            flexWrap: 'wrap',
+          <div className="glass-panel" style={{
+            borderRadius: 'var(--radius-lg)', padding: '40px',
+            display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap',
+            background: 'linear-gradient(135deg, rgba(217,70,239,0.1), transparent)'
           }}>
-            <div style={{ fontSize: 48 }}>🎧</div>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <h3 style={{ fontSize: 'var(--text-xl)', marginBottom: 8 }}>Listen Together</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
-                Create a room and vibe with friends in real-time, no matter where you are.
+            <div style={{ fontSize: 64 }}>📻</div>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 12 }}>Vibe Together.</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)', maxWidth: 400 }}>
+                Start a collaborative listening room and sync your playback with friends in real-time.
               </p>
             </div>
             <Link href="/room/create">
               <button className="btn btn-primary btn-lg">
-                Create a Room
+                Start a Session
               </button>
             </Link>
           </div>
         </section>
-
-        {/* Spotify Import CTA */}
-        {!user?.spotify_connected && (
-          <section style={{ marginBottom: 40 }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(30,215,96,0.1) 0%, rgba(30,215,96,0.05) 100%)',
-              border: '1px solid rgba(30,215,96,0.2)',
-              borderRadius: 'var(--radius-xl)',
-              padding: '24px',
-              display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
-            }}>
-              <div style={{ fontSize: 36 }}>🎵</div>
-              <div style={{ flex: 1, minWidth: 180 }}>
-                <h3 style={{ marginBottom: 4 }}>Import from Spotify</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
-                  Bring your playlists and saved songs over to BuzzBeats.
-                </p>
-              </div>
-              <Link href="/import">
-                <button className="btn btn-secondary">
-                  Import Playlists
-                </button>
-              </Link>
-            </div>
-          </section>
-        )}
-
-        {/* Credits footer */}
-        <footer style={{ textAlign: 'center', padding: '24px 0 40px', borderTop: '1px solid var(--border-subtle)', marginTop: 8 }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
-            Designed and developed by <strong style={{ color: 'var(--accent)' }}>Shravan</strong> ·
-            Brand credits to <strong style={{ color: 'var(--accent)' }}>Gauri</strong> ·{' '}
-            <Link href="/settings" style={{ color: 'var(--text-secondary)' }}>Settings</Link>
-          </p>
-        </footer>
       </div>
     </div>
   );
@@ -261,105 +178,45 @@ export default function HomeClient({ featuredSongs, trendingArtists, newReleases
 function SongCard({ song, onClick, rank }: { song: Song; onClick: () => void; rank?: number }) {
   return (
     <div
-      className="music-card"
+      className="card"
       onClick={onClick}
-      style={{ width: 160, flexShrink: 0, padding: 12 }}
+      style={{ width: 180, flexShrink: 0, cursor: 'pointer' }}
     >
-      <div style={{ position: 'relative', marginBottom: 10 }}>
+      <div style={{ position: 'relative', marginBottom: 16, borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
         <img
           src={song.cover_url}
           alt={song.title}
-          className="cover"
+          style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', display: 'block' }}
           onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
         />
         {rank && rank <= 3 && (
           <div style={{
             position: 'absolute', top: 8, left: 8,
-            background: 'var(--gradient-accent)',
-            borderRadius: 'var(--radius-xs)',
-            padding: '2px 8px',
-            fontSize: 'var(--text-xs)', fontWeight: 700, color: 'white',
+            background: 'var(--accent)',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: 'var(--text-xs)', fontWeight: 800, color: 'white',
           }}>
             #{rank}
           </div>
         )}
-        <div className="play-overlay">
-          <PlayButton size={20} />
+        <div style={{
+          position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s'
+        }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '0'}
+        >
+          <div style={{ background: 'var(--accent)', borderRadius: '50%', width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PlayButton size={24} />
+          </div>
         </div>
       </div>
-      <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{song.title}</div>
-      <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>
+      <div className="truncate" style={{ fontWeight: 700, fontSize: 'var(--text-base)', marginBottom: 4 }}>{song.title}</div>
+      <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
         {song.artist?.name}
       </div>
     </div>
-  );
-}
-
-function AlbumCard({ album }: { album: Album }) {
-  return (
-    <Link href={`/album/${album.id}`}>
-      <div className="music-card" style={{ padding: 12 }}>
-        <div style={{ position: 'relative', marginBottom: 10 }}>
-          <img
-            src={album.cover_url}
-            alt={album.title}
-            className="cover"
-            onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
-          />
-          <div className="play-overlay">
-            <PlayButton size={20} />
-          </div>
-        </div>
-        <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{album.title}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-          {album.artist?.verified && <span style={{ color: 'var(--accent)', fontSize: 10 }}>✓</span>}
-          <span className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>
-            {album.artist?.name}
-          </span>
-        </div>
-        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginTop: 2 }}>
-          {album.genre} · {album.release_date ? new Date(album.release_date).getFullYear() : ''}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function ArtistCard({ artist }: { artist: Artist }) {
-  return (
-    <Link href={`/artist/${artist.id}`}>
-      <div style={{
-        width: 140, flexShrink: 0, textAlign: 'center', cursor: 'pointer',
-        padding: '12px 8px',
-        borderRadius: 'var(--radius-lg)',
-        transition: 'all 0.2s',
-      }}
-        onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass)'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-      >
-        <div style={{ position: 'relative', margin: '0 auto 10px', width: 100, height: 100 }}>
-          <img
-            src={artist.image_url ?? '/images/default-artist.jpg'}
-            alt={artist.name}
-            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }}
-            onError={(e) => { e.currentTarget.src = '/images/default-artist.jpg'; }}
-          />
-          {artist.verified && (
-            <div style={{
-              position: 'absolute', bottom: 4, right: 4,
-              background: 'var(--accent)',
-              borderRadius: '50%', width: 20, height: 20,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, color: 'white',
-            }}>✓</div>
-          )}
-        </div>
-        <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{artist.name}</div>
-        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
-          {(artist.follower_count / 1000).toFixed(0)}K followers
-        </div>
-      </div>
-    </Link>
   );
 }
 
