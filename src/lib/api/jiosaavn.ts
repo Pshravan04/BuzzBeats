@@ -1,87 +1,135 @@
 import { Song, Artist, Album } from '@/types';
+import CryptoJS from 'crypto-js';
 
-const ITUNES_API = 'https://itunes.apple.com';
+const JIOSAAVN_API = 'https://www.jiosaavn.com/api.php';
+const DES_KEY = '38346591';
 
-export interface ITunesSong {
-  trackId: number;
-  trackName: string;
-  artistId: number;
-  artistName: string;
-  collectionId: number;
-  collectionName: string;
-  previewUrl: string;
-  artworkUrl100: string;
-  releaseDate: string;
-  primaryGenreName: string;
-  trackTimeMillis: number;
+function decryptUrl(encryptedUrl: string): string {
+  try {
+    const key = CryptoJS.enc.Utf8.parse(DES_KEY);
+    const decrypted = CryptoJS.DES.decrypt(
+      { ciphertext: CryptoJS.enc.Base64.parse(encryptedUrl) } as any,
+      key,
+      { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }
+    );
+    const url = decrypted.toString(CryptoJS.enc.Utf8);
+    // Upgrade 96kbps streams to 320kbps
+    return url.replace('_96.mp4', '_320.mp4');
+  } catch (err) {
+    console.error('Decryption failed:', err);
+    return '';
+  }
 }
 
-export interface ITunesResponse {
-  resultCount: number;
-  results: ITunesSong[];
-}
-
-export function mapITunesSongToSong(song: ITunesSong): Song {
-  const artist: Artist = {
-    id: song.artistId?.toString() || 'unknown',
-    name: song.artistName || 'Unknown Artist',
-    verified: false,
-    follower_count: 0,
-    genres: [song.primaryGenreName].filter(Boolean),
-    image_url: song.artworkUrl100 || ''
-  };
-
-  const album: Album = {
-    id: song.collectionId?.toString() || 'unknown',
-    title: song.collectionName || 'Unknown Album',
-    artist_id: artist.id,
-    cover_url: song.artworkUrl100?.replace('100x100bb', '600x600bb') || '',
-    release_date: song.releaseDate || '',
-    genre: song.primaryGenreName || 'Pop',
-    song_count: 1
-  };
-
-  return {
-    id: song.trackId?.toString() || Math.random().toString(),
-    title: song.trackName || 'Unknown Title',
-    artist_id: artist.id,
-    artist: artist,
-    album_id: album.id,
-    album: album,
-    duration: Math.floor((song.trackTimeMillis || 30000) / 1000),
-    audio_url: song.previewUrl || '',
-    cover_url: album.cover_url,
-    play_count: 0
-  };
+function formatImageUrl(url: string): string {
+  if (!url) return '';
+  return url.replace('150x150', '500x500').replace('50x50', '500x500');
 }
 
 export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
   try {
-    const res = await fetch(`${ITUNES_API}/search?term=${encodeURIComponent(query)}&entity=song&limit=${limit}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json: ITunesResponse = await res.json();
+    const searchUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(searchUrl);
+    const json = await res.json();
     
-    if (json.results && Array.isArray(json.results)) {
-      return json.results.filter(s => s.previewUrl).map(mapITunesSongToSong);
+    if (!json.results || !Array.isArray(json.results)) return [];
+
+    const songIds = json.results.map((r: any) => r.id).join(',');
+    if (!songIds) return [];
+
+    // Fetch details for all found IDs in one call
+    const detailsUrl = `${JIOSAAVN_API}?__call=song.getDetails&pids=${songIds}&_format=json&_marker=0&ctx=web6dot0`;
+    const detailRes = await fetch(detailsUrl);
+    const detailJson = await detailRes.json();
+
+    const songs: Song[] = [];
+    if (detailJson.songs && Array.isArray(detailJson.songs)) {
+      for (const track of detailJson.songs) {
+        if (!track.encrypted_media_url) continue;
+
+        const coverUrl = formatImageUrl(track.image);
+        const artistName = track.primary_artists || track.singers || 'Unknown Artist';
+        
+        songs.push({
+          id: track.id,
+          title: track.song?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Title',
+          artist_id: track.primary_artists_id || track.id,
+          artist: {
+            id: track.primary_artists_id || track.id,
+            name: artistName,
+            verified: false,
+            follower_count: 0,
+            genres: [],
+            image_url: coverUrl
+          },
+          album_id: track.albumid,
+          album: {
+            id: track.albumid,
+            title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
+            artist_id: track.primary_artists_id || track.id,
+            cover_url: coverUrl,
+            release_date: track.year || '',
+            genre: track.language || '',
+            song_count: 1
+          },
+          duration: parseInt(track.duration, 10) || 0,
+          audio_url: decryptUrl(track.encrypted_media_url),
+          cover_url: coverUrl,
+          play_count: parseInt(track.play_count, 10) || 0
+        });
+      }
     }
-    return [];
+    return songs;
   } catch (error) {
-    console.error('Error searching iTunes:', error);
+    console.error('Error in JioSaavn search:', error);
     return [];
   }
 }
 
 export async function getTrendingSongs(): Promise<Song[]> {
   try {
-    // iTunes doesn't have a direct trending API without RSS parsing, so we search a popular term.
-    const res = await fetch(`${ITUNES_API}/search?term=pop+hits&entity=song&limit=20`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json: ITunesResponse = await res.json();
+    const searchUrl = `${JIOSAAVN_API}?__call=webapi.get&token=8MT-LGlEbsc_&type=playlist&p=1&n=20&includeMetaTags=0&ctx=web6dot0&api_version=4&_format=json&_marker=0`;
+    const res = await fetch(searchUrl);
+    const json = await res.json();
     
-    if (json.results && Array.isArray(json.results)) {
-      return json.results.filter(s => s.previewUrl).map(mapITunesSongToSong);
+    const songs: Song[] = [];
+    if (json.list && Array.isArray(json.list)) {
+      for (const track of json.list) {
+        if (!track.encrypted_media_url) continue;
+
+        const coverUrl = formatImageUrl(track.image);
+        const artistName = track.primary_artists || track.singers || 'Unknown Artist';
+        
+        songs.push({
+          id: track.id,
+          title: track.title?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Title',
+          artist_id: track.primary_artists_id || track.id,
+          artist: {
+            id: track.primary_artists_id || track.id,
+            name: artistName,
+            verified: false,
+            follower_count: 0,
+            genres: [],
+            image_url: coverUrl
+          },
+          album_id: track.albumid,
+          album: {
+            id: track.albumid,
+            title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
+            artist_id: track.primary_artists_id || track.id,
+            cover_url: coverUrl,
+            release_date: track.year || '',
+            genre: track.language || '',
+            song_count: 1
+          },
+          duration: parseInt(track.duration, 10) || 0,
+          audio_url: decryptUrl(track.encrypted_media_url),
+          cover_url: coverUrl,
+          play_count: parseInt(track.play_count, 10) || 0
+        });
+      }
     }
-    return [];
+    return songs;
   } catch (error) {
     console.error('Error fetching trending:', error);
     return [];
@@ -90,11 +138,44 @@ export async function getTrendingSongs(): Promise<Song[]> {
 
 export async function getSongDetails(id: string): Promise<Song | null> {
   try {
-    const res = await fetch(`${ITUNES_API}/lookup?id=${id}&entity=song`);
-    if (!res.ok) return null;
-    const json: ITunesResponse = await res.json();
-    if (json.results && json.results.length > 0) {
-      return mapITunesSongToSong(json.results[0]);
+    const detailsUrl = `${JIOSAAVN_API}?__call=song.getDetails&pids=${id}&_format=json&_marker=0&ctx=web6dot0`;
+    const detailRes = await fetch(detailsUrl);
+    const detailJson = await detailRes.json();
+    
+    if (detailJson.songs && Array.isArray(detailJson.songs) && detailJson.songs.length > 0) {
+      const track = detailJson.songs[0];
+      if (!track.encrypted_media_url) return null;
+
+      const coverUrl = formatImageUrl(track.image);
+      const artistName = track.primary_artists || track.singers || 'Unknown Artist';
+      
+      return {
+        id: track.id,
+        title: track.song?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Title',
+        artist_id: track.primary_artists_id || track.id,
+        artist: {
+          id: track.primary_artists_id || track.id,
+          name: artistName,
+          verified: false,
+          follower_count: 0,
+          genres: [],
+          image_url: coverUrl
+        },
+        album_id: track.albumid,
+        album: {
+          id: track.albumid,
+          title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
+          artist_id: track.primary_artists_id || track.id,
+          cover_url: coverUrl,
+          release_date: track.year || '',
+          genre: track.language || '',
+          song_count: 1
+        },
+        duration: parseInt(track.duration, 10) || 0,
+        audio_url: decryptUrl(track.encrypted_media_url),
+        cover_url: coverUrl,
+        play_count: parseInt(track.play_count, 10) || 0
+      };
     }
     return null;
   } catch (error) {
