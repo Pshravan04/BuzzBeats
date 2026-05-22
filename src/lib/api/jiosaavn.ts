@@ -31,8 +31,11 @@ const FETCH_HEADERS = {
   'Accept': 'application/json, text/plain, */*'
 };
 
-export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
+export async function searchSongs(rawQuery: string, limit = 20): Promise<Song[]> {
   try {
+    // Clean conversational stop words that confuse JioSaavn's literal search engine
+    const query = rawQuery.replace(/\b(song|of|by|track|music)\b/ig, '').replace(/\s+/g, ' ').trim();
+    
     const searchUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
     const res = await fetch(searchUrl, { headers: FETCH_HEADERS });
     const json = await res.json();
