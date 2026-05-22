@@ -26,10 +26,15 @@ function formatImageUrl(url: string): string {
   return url.replace('150x150', '500x500').replace('50x50', '500x500');
 }
 
+const FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'application/json, text/plain, */*'
+};
+
 export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
   try {
     const searchUrl = `${JIOSAAVN_API}?__call=search.getResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
-    const res = await fetch(searchUrl);
+    const res = await fetch(searchUrl, { headers: FETCH_HEADERS });
     const json = await res.json();
     
     if (!json.results || !Array.isArray(json.results)) return [];
@@ -39,7 +44,7 @@ export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
 
     // Fetch details for all found IDs in one call
     const detailsUrl = `${JIOSAAVN_API}?__call=song.getDetails&pids=${songIds}&_format=json&_marker=0&ctx=web6dot0`;
-    const detailRes = await fetch(detailsUrl);
+    const detailRes = await fetch(detailsUrl, { headers: FETCH_HEADERS });
     const detailJson = await detailRes.json();
 
     const songs: Song[] = [];
