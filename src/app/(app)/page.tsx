@@ -8,11 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  // Fetch real data from JioSaavn API
-  const trendingSongs = await getTrendingSongs();
-  // Fetch some specific popular artists by searching for a popular term
-  const popularHits = await searchSongs('popular', 10);
-  const newReleases = await searchSongs('new release', 10);
+  // Fetch real data from JioSaavn API concurrently
+  const [trendingSongs, popularHits, newReleases] = await Promise.all([
+    getTrendingSongs(),
+    searchSongs('popular', 10),
+    searchSongs('new release', 10)
+  ]);
 
   return (
     <HomeClient
