@@ -58,17 +58,17 @@ export default function LibraryPage() {
   };
 
   const TABS = [
-    { key: 'playlists', label: 'Playlists', icon: '🎵' },
-    { key: 'liked', label: 'Liked Songs', icon: '💜' },
-    { key: 'albums', label: 'Albums', icon: '💿' },
-    { key: 'artists', label: 'Artists', icon: '🎤' },
+    { key: 'playlists', label: 'Playlists' },
+    { key: 'liked', label: 'Liked Songs' },
+    { key: 'albums', label: 'Albums' },
+    { key: 'artists', label: 'Artists' },
   ] as const;
 
   if (!user) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 40, gap: 16, minHeight: '60vh' }}>
         <div style={{ fontSize: 64 }}>🎵</div>
-        <h2>Your Library</h2>
+        <h2 style={{ fontSize: '32px', fontWeight: 800, fontFamily: 'var(--font-display)' }}>Your Library</h2>
         <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>Sign in to see your playlists, liked songs, and more.</p>
         <Link href="/login"><button className="btn btn-primary btn-lg">Sign In</button></Link>
       </div>
@@ -76,35 +76,70 @@ export default function LibraryPage() {
   }
 
   return (
-    <div style={{ minHeight: '100%' }}>
-      {/* Header */}
-      <div style={{ padding: '24px 24px 0', background: 'var(--bg-base)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)' }}>Your Library</h1>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => setShowCreate(true)}
-          >
-            <PlusIcon size={16} />
-            New Playlist
-          </button>
+    <div style={{ minHeight: '100%', paddingBottom: 120 }}>
+      {/* Header Area */}
+      <div style={{ padding: '40px 40px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
+            Your Library
+          </h1>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <button className="btn btn-ghost btn-icon" style={{ border: '1px solid #1f182b', borderRadius: '50%' }}>
+              <SearchIcon size={20} />
+            </button>
+            <button
+              className="btn btn-primary btn-icon"
+              style={{ borderRadius: '50%' }}
+              onClick={() => setShowCreate(true)}
+            >
+              <PlusIcon size={24} />
+            </button>
+          </div>
+        </div>
+
+        {/* Import Banner */}
+        <div style={{
+          background: 'linear-gradient(90deg, #1db954 0%, #120d18 100%)',
+          borderRadius: '16px', padding: '2px', marginBottom: 32
+        }}>
+          <div style={{
+            background: '#120d18', borderRadius: '14px', padding: '20px 24px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 48, height: 48, background: '#1db954', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 4px' }}>Import your Spotify Library</h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Sync your playlists and liked songs in seconds.</p>
+              </div>
+            </div>
+            <button className="btn" style={{ background: '#1db954', color: 'black', fontWeight: 800 }}>
+              Connect Spotify
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 1 }}>
-          {TABS.map(({ key, label, icon }) => (
+        <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 1, scrollbarWidth: 'none' }}>
+          {TABS.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setTab(key as any)}
-              className={`btn btn-sm ${tab === key ? 'btn-accent' : 'btn-secondary'}`}
-              style={{ flexShrink: 0 }}
+              style={{
+                padding: '10px 24px', borderRadius: 'var(--radius-full)', cursor: 'pointer',
+                fontSize: '14px', fontWeight: 700, transition: 'all 0.2s',
+                background: tab === key ? 'white' : '#120d18',
+                color: tab === key ? 'black' : 'white',
+                border: '1px solid',
+                borderColor: tab === key ? 'white' : '#1f182b'
+              }}
             >
-              {icon} {label}
+              {label}
             </button>
           ))}
         </div>
-
-        <div style={{ height: 1, background: 'var(--border-subtle)', marginTop: 16 }} />
       </div>
 
       {/* Create Playlist Modal */}
@@ -112,7 +147,7 @@ export default function LibraryPage() {
         <div className="modal-overlay" onClick={() => setShowCreate(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Create Playlist</h3>
+              <h3 style={{ fontFamily: 'var(--font-display)' }}>Create Playlist</h3>
               <button className="btn btn-ghost btn-icon-sm" onClick={() => setShowCreate(false)}>
                 <CloseIcon size={18} />
               </button>
@@ -137,7 +172,7 @@ export default function LibraryPage() {
       )}
 
       {/* Content */}
-      <div className="page-container" style={{ paddingTop: 24 }}>
+      <div style={{ padding: '0 40px' }}>
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
             <div className="spinner" />
@@ -148,65 +183,53 @@ export default function LibraryPage() {
             {tab === 'playlists' && (
               <div>
                 {playlists.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
                     <div style={{ fontSize: 64, marginBottom: 16 }}>🎵</div>
-                    <h2 style={{ marginBottom: 8 }}>No playlists yet</h2>
+                    <h2 style={{ marginBottom: 8, fontFamily: 'var(--font-display)', fontWeight: 800 }}>No playlists yet</h2>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>Create your first playlist to get started.</p>
                     <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
                       Create Playlist
                     </button>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {/* Liked Songs quick link */}
-                    <button
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 24 }}>
+                    {/* Liked Songs quick card */}
+                    <div
                       onClick={() => setTab('liked')}
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 12,
-                        padding: '12px', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                        background: 'transparent', border: 'none', textAlign: 'left',
-                        width: '100%',
-                        transition: 'background 0.15s',
+                        background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+                        borderRadius: '16px', padding: 24, cursor: 'pointer',
+                        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                        minHeight: 200, position: 'relative', overflow: 'hidden'
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      <div style={{ width: 56, height: 56, borderRadius: 8, background: 'linear-gradient(135deg, #4c1d95, #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>💜</div>
-                      <div>
-                        <div style={{ fontWeight: 600 }}>Liked Songs</div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>Playlist</div>
-                      </div>
-                    </button>
+                      <div style={{ position: 'absolute', right: -20, bottom: -20, opacity: 0.2, fontSize: 120 }}>💜</div>
+                      <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: 4, position: 'relative' }}>Liked Songs</h3>
+                      <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', position: 'relative' }}>{likedSongs.length} songs</p>
+                    </div>
 
                     {playlists.map(playlist => (
-                      <Link key={playlist.id} href={`/playlist/${playlist.id}`}>
+                      <Link key={playlist.id} href={`/playlist/${playlist.id}`} style={{ textDecoration: 'none' }}>
                         <div
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
-                            padding: '12px', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                            transition: 'background 0.15s',
+                            background: '#120d18', border: '1px solid #1f182b',
+                            borderRadius: '16px', padding: 16, cursor: 'pointer',
+                            transition: 'all 0.2s', height: '100%', display: 'flex', flexDirection: 'column'
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#1a1325'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#120d18'; e.currentTarget.style.borderColor = '#1f182b' }}
                         >
-                          {playlist.cover_url ? (
-                            <img src={playlist.cover_url} alt={playlist.name} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-                          ) : (
-                            <div style={{ width: 56, height: 56, borderRadius: 8, background: 'var(--gradient-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, border: '1px solid var(--border-subtle)' }}>🎵</div>
-                          )}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div className="truncate" style={{ fontWeight: 600 }}>{playlist.name}</div>
-                            <div style={{ display: 'flex', gap: 8, color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>
-                              <span>Playlist</span>
-                              {playlist.is_collaborative && <span style={{ color: 'var(--accent)' }}>• Collaborative</span>}
-                              <span>• {playlist.song_count} songs</span>
-                            </div>
+                          <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, background: 'var(--bg-base)', marginBottom: 16, overflow: 'hidden', position: 'relative' }}>
+                            {playlist.cover_url ? (
+                              <img src={playlist.cover_url} alt={playlist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, border: '1px solid #1f182b', borderRadius: 8 }}>🎵</div>
+                            )}
                           </div>
-                          {playlist.is_public ? (
-                            <span className="badge">Public</span>
-                          ) : (
-                            <span className="badge">Private</span>
-                          )}
+                          <div className="truncate" style={{ fontWeight: 700, fontSize: '16px', color: 'white', marginBottom: 4 }}>{playlist.name}</div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
+                            {playlist.song_count} songs {playlist.is_public && '• Public'}
+                          </div>
                         </div>
                       </Link>
                     ))}
@@ -218,61 +241,58 @@ export default function LibraryPage() {
             {/* Liked Songs Tab */}
             {tab === 'liked' && (
               <div>
-                {/* Header */}
-                <div style={{
-                  background: 'linear-gradient(135deg, #4c1d95, #ec4899)',
-                  borderRadius: 'var(--radius-xl)',
-                  padding: 32, marginBottom: 24,
-                  display: 'flex', alignItems: 'center', gap: 20,
-                }}>
-                  <div style={{ fontSize: 80 }}>💜</div>
-                  <div>
-                    <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Playlist</div>
-                    <h2 style={{ fontSize: 'var(--text-4xl)', fontWeight: 900, marginBottom: 8 }}>Liked Songs</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 'var(--text-sm)' }}>
-                      {likedSongs.length} songs
-                    </p>
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                  <h2 style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', margin: 0 }}>Liked Songs</h2>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => likedSongs.length && player.playQueue(likedSongs, 0)}
+                    style={{ gap: 8 }}
+                  >
+                    <PlayIcon size={16} /> Play All
+                  </button>
                 </div>
 
                 {likedSongs.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                    <p style={{ color: 'var(--text-secondary)' }}>Songs you like will appear here. Start liking!</p>
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
+                    <p style={{ color: 'var(--text-secondary)' }}>Songs you like will appear here. Start exploring!</p>
+                    <Link href="/search"><button className="btn btn-secondary" style={{ marginTop: 16 }}>Explore</button></Link>
                   </div>
                 ) : (
-                  <>
-                    <button
-                      className="btn btn-primary btn-lg"
-                      onClick={() => likedSongs.length && player.playQueue(likedSongs, 0)}
-                      style={{ marginBottom: 24, gap: 8 }}
-                    >
-                      <PlayIcon size={20} />
-                      Play All
-                    </button>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      {likedSongs.map((song, idx) => (
-                        <div
-                          key={song.id}
-                          className="song-row"
-                          style={{ display: 'grid', gridTemplateColumns: '24px 48px 1fr auto', gap: 12, padding: '8px 12px', alignItems: 'center', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
-                          onClick={() => player.play(song, likedSongs)}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-glass)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                        >
-                          <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', textAlign: 'right' }}>{idx + 1}</span>
-                          <img src={song.cover_url} alt="" style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
-                          <div>
-                            <div className="truncate" style={{ fontWeight: 500 }}>{song.title}</div>
-                            <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>{song.artist?.name}</div>
-                          </div>
-                          <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
-                            {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
-                          </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {likedSongs.map((song, idx) => (
+                      <div
+                        key={song.id}
+                        style={{
+                          display: 'grid', gridTemplateColumns: '32px 48px 1fr auto auto auto', gap: 16, alignItems: 'center',
+                          padding: '12px 16px', borderRadius: '12px', cursor: 'pointer',
+                          transition: 'background 0.2s', border: '1px solid transparent'
+                        }}
+                        onClick={() => player.play(song, likedSongs)}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#120d18'; e.currentTarget.style.borderColor = '#1f182b'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
+                      >
+                        <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 600 }}>{(idx + 1).toString().padStart(2, '0')}</div>
+                        <img src={song.cover_url} alt={song.title} style={{ width: 48, height: 48, borderRadius: '8px', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+                        <div style={{ minWidth: 0 }}>
+                          <div className="truncate" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{song.title}</div>
+                          <div className="truncate" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{song.artist?.name}</div>
                         </div>
-                      ))}
-                    </div>
-                  </>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500, marginRight: 24 }}>{song.album?.title || 'Single'}</div>
+                        <button className="btn btn-ghost btn-icon-sm" onClick={e => { e.stopPropagation(); }}><HeartIcon size={20} filled={true} /></button>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '13px', width: 40, textAlign: 'right' }}>
+                          {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
+              </div>
+            )}
+            
+            {/* Albums/Artists (Placeholders) */}
+            {(tab === 'albums' || tab === 'artists') && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#120d18', borderRadius: 16, border: '1px solid #1f182b' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>You don't have any saved {tab} yet.</p>
               </div>
             )}
           </>
@@ -282,12 +302,11 @@ export default function LibraryPage() {
   );
 }
 
-function PlusIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
-}
-function CloseIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-}
-function PlayIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+// Icons
+function PlusIcon({ size = 24 }: { size?: number }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>; }
+function CloseIcon({ size = 24 }: { size?: number }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>; }
+function PlayIcon({ size = 24 }: { size?: number }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>; }
+function SearchIcon({ size = 24 }: { size?: number }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>; }
+function HeartIcon({ size = 24, filled = false }: { size?: number, filled?: boolean }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>;
 }

@@ -35,21 +35,20 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'BuzzBeats',
     description: 'Premium music streaming for Gen Z',
-    images: ['/images/og-image.jpg'],
+    images: ['/icon.png'],
   },
   icons: {
     icon: [
-      { url: '/icons/icon-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon.png', type: 'image/png' },
     ],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0f',
+  themeColor: '#080808',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

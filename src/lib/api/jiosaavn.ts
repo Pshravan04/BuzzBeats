@@ -1,4 +1,8 @@
-export const API_BASE = 'https://saavn.dev/api';
+const API_BASES = [
+  'https://jiosaavn-api-privatecvc2.vercel.app',
+  'https://saavn.me',
+  'https://jiosaavn-api-v3.vercel.app'
+];
 
 export interface SaavnImage {
   quality: string;
@@ -12,11 +16,13 @@ export interface SaavnDownloadUrl {
 
 export interface SaavnSong {
   id: string;
-  name: string;
+  name?: string;
+  title?: string;
   type: string;
   album: {
     id: string;
-    name: string;
+    name?: string;
+    title?: string;
     url: string;
   };
   year: string;
@@ -38,8 +44,8 @@ export interface SaavnSong {
 export interface SaavnSearchResponse {
   success: boolean;
   data: {
-    total: number;
-    start: number;
+    total?: number;
+    start?: number;
     results: SaavnSong[];
   };
 }
@@ -66,17 +72,17 @@ export function mapSaavnSongToSong(saavn: SaavnSong): Song {
 
   const album: Album = {
     id: saavn.album?.id || 'unknown',
-    title: saavn.album?.name || 'Unknown Album',
+    title: saavn.album?.name || saavn.album?.title || 'Unknown Album',
     artist_id: artistId,
     cover_url: coverUrl,
     release_date: saavn.releaseDate || saavn.year || '',
-    genre: saavn.language,
+    genre: saavn.language || 'Pop',
     song_count: 1
   };
 
   return {
     id: saavn.id,
-    title: saavn.name,
+    title: saavn.name || saavn.title || 'Unknown Title',
     artist_id: artistId,
     artist: artist,
     album_id: album.id,
@@ -88,16 +94,43 @@ export function mapSaavnSongToSong(saavn: SaavnSong): Song {
   };
 }
 
+async function fetchWithFallback(endpoint: string): Promise<any> {
+  let lastError = null;
+  for (const base of API_BASES) {
+    try {
+      // AbortController to prevent hanging indefinitely
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout per request
+      const res = await fetch(`${base}${endpoint}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      return json;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Failed fetching from ${base}${endpoint}:`, err);
+      continue; // Try next fallback
+    }
+  }
+  throw lastError || new Error('All API fallbacks failed');
+}
+
 export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
   try {
-    const res = await fetch(`${API_BASE}/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
-    if (!res.ok) throw new Error('Failed to fetch from JioSaavn');
-    const json: SaavnSearchResponse = await res.json();
+    const json = await fetchWithFallback(`/search/songs?query=${encodeURIComponent(query)}&limit=${limit}`);
     
-    if (json.success && json.data && json.data.results) {
-      return json.data.results.map(mapSaavnSongToSong);
+    // Support multiple possible response formats from different API instances
+    let results = [];
+    if (json.success && json.data?.results) {
+      results = json.data.results;
+    } else if (json.results) {
+      results = json.results;
+    } else if (json.data && Array.isArray(json.data)) {
+      results = json.data;
     }
-    return [];
+
+    return results.map(mapSaavnSongToSong).filter((s: Song) => s.audio_url); // Only return playable songs
   } catch (error) {
     console.error('Error searching songs:', error);
     return [];
@@ -105,18 +138,17 @@ export async function searchSongs(query: string, limit = 20): Promise<Song[]> {
 }
 
 export async function getTrendingSongs(): Promise<Song[]> {
-  // We'll fetch a popular playlist to simulate trending (e.g. Top JioTunes or similar)
-  // Or just search for a generic popular term. Let's use search for "2024" for now to get latest hits.
-  // Actually, saavn.dev has a /modules endpoint for home data, but search is safer.
   try {
-    const res = await fetch(`${API_BASE}/search/songs?query=latest+hits&limit=20`);
-    if (!res.ok) throw new Error('Failed to fetch trending');
-    const json: SaavnSearchResponse = await res.json();
+    const json = await fetchWithFallback(`/search/songs?query=latest+hits&limit=20`);
     
-    if (json.success && json.data && json.data.results) {
-      return json.data.results.map(mapSaavnSongToSong);
+    let results = [];
+    if (json.success && json.data?.results) {
+      results = json.data.results;
+    } else if (json.results) {
+      results = json.results;
     }
-    return [];
+
+    return results.map(mapSaavnSongToSong).filter((s: Song) => s.audio_url);
   } catch (error) {
     console.error('Error fetching trending:', error);
     return [];
@@ -125,11 +157,17 @@ export async function getTrendingSongs(): Promise<Song[]> {
 
 export async function getSongDetails(id: string): Promise<Song | null> {
   try {
-    const res = await fetch(`${API_BASE}/songs?id=${id}`);
-    if (!res.ok) return null;
-    const json = await res.json();
+    const json = await fetchWithFallback(`/songs?id=${id}`);
+    
+    let songData = null;
     if (json.success && json.data && json.data.length > 0) {
-      return mapSaavnSongToSong(json.data[0]);
+      songData = json.data[0];
+    } else if (Array.isArray(json) && json.length > 0) {
+      songData = json[0];
+    }
+
+    if (songData) {
+      return mapSaavnSongToSong(songData);
     }
     return null;
   } catch (error) {

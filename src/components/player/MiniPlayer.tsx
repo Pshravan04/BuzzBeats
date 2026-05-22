@@ -36,39 +36,35 @@ export function MiniPlayer() {
       role="region"
       aria-label="Music player"
       style={{
-        position: 'absolute', bottom: 24, left: 24, right: 24,
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 24px',
-        gap: 16,
-        height: 80,
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(30px) saturate(200%)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: 'var(--radius-full)',
+        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 140px)', maxWidth: 1200, minWidth: 700,
+        display: 'flex', alignItems: 'center', padding: '0 24px', gap: 16, height: 72,
+        background: 'rgba(18, 13, 24, 0.75)',
+        backdropFilter: 'blur(20px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(200%)',
+        border: '1px solid rgba(168, 85, 247, 0.2)',
+        borderRadius: '24px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
-        zIndex: 100,
+        zIndex: 100, overflow: 'hidden'
       }}
     >
-      {/* Progress bar at top */}
+      {/* Progress bar perfectly hugging bottom */}
       <div
         ref={progressRef}
-        className="progress-bar"
-        style={{ position: 'absolute', top: -1, left: 24, right: 24, zIndex: 10, margin: 0, borderRadius: 'var(--radius-full)' }}
+        style={{ position: 'absolute', bottom: 0, left: 24, right: 24, height: 3, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', borderRadius: 4 }}
         onClick={handleProgressClick}
-        aria-label="Playback progress"
       >
-        <div className="progress-bar-fill" style={{ width: `${progress * 100}%` }} />
+        <div style={{ width: `${progress * 100}%`, height: '100%', background: 'var(--gradient-accent)', borderRadius: 4, position: 'relative' }}>
+          <div style={{ position: 'absolute', right: -4, top: -2, width: 8, height: 8, borderRadius: '50%', background: 'white' }} />
+        </div>
       </div>
 
-      {/* Song Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+      {/* Left: Song Info */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0, paddingBottom: 4 }}>
         <Link href="/player" style={{ position: 'relative', flexShrink: 0 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: '50%', overflow: 'hidden',
-            boxShadow: isPlaying ? '0 0 20px var(--accent-glow)' : 'none',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            animation: isPlaying ? 'spin 12s linear infinite' : 'none',
+            width: 48, height: 48, borderRadius: '12px', overflow: 'hidden',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
           }}>
             <img
               src={currentSong.cover_url || '/images/default-album.jpg'}
@@ -77,28 +73,15 @@ export function MiniPlayer() {
               onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
             />
           </div>
-          {isPlaying && (
-            <div style={{
-              position: 'absolute', bottom: -4, right: -4,
-              display: 'flex', gap: 2, alignItems: 'flex-end', height: 18,
-            }}>
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="beat-bar" style={{ width: 3 }} />
-              ))}
-            </div>
-          )}
         </Link>
 
-        <div style={{ minWidth: 0 }}>
-          <Link href="/player">
-            <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)', cursor: 'pointer' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-primary)'}
-            >
+        <div style={{ minWidth: 0, flexShrink: 1, maxWidth: 200 }}>
+          <Link href="/player" style={{ textDecoration: 'none' }}>
+            <div className="truncate" style={{ fontWeight: 700, fontSize: '15px', color: 'white', marginBottom: 2 }}>
               {currentSong.title}
             </div>
           </Link>
-          <div className="truncate" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+          <div className="truncate" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
             {currentSong.artist?.name ?? 'Unknown Artist'}
           </div>
         </div>
@@ -106,93 +89,79 @@ export function MiniPlayer() {
         {/* Like button */}
         <button
           className="btn btn-ghost btn-icon-sm"
-          aria-label="Like song"
           style={{ flexShrink: 0, color: currentSong.is_liked ? 'var(--accent)' : 'var(--text-muted)' }}
         >
-          <HeartIcon size={18} filled={currentSong.is_liked} />
+          <HeartIcon size={20} filled={currentSong.is_liked} />
         </button>
       </div>
 
       {/* Center Controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flex: '0 0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Shuffle */}
-          <button
-            className="btn btn-ghost btn-icon-sm"
-            onClick={player.toggleShuffle}
-            aria-label="Toggle shuffle"
-            aria-pressed={shuffle}
-            style={{ color: shuffle ? 'var(--accent)' : 'var(--text-muted)' }}
-          >
-            <ShuffleIcon size={18} />
-          </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: '0 0 auto', paddingBottom: 4 }}>
+        <button
+          className="btn btn-ghost btn-icon-sm"
+          onClick={player.toggleShuffle}
+          style={{ color: shuffle ? 'var(--accent)' : 'var(--text-muted)' }}
+        >
+          <ShuffleIcon size={18} />
+        </button>
 
-          {/* Prev */}
-          <button className="btn btn-ghost btn-icon" onClick={player.prev} aria-label="Previous song">
-            <PrevIcon size={20} />
-          </button>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} style={{ color: 'white' }}>
+          <PrevIcon size={20} />
+        </button>
 
-          {/* Play/Pause */}
-          <button
-            className="btn btn-primary btn-icon"
-            onClick={player.togglePlay}
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-            style={{ width: 44, height: 44 }}
-          >
-            {isLoading
-              ? <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
-              : isPlaying ? <PauseIcon size={20} /> : <PlayIcon size={20} />
-            }
-          </button>
+        {/* Big Purple Play Button */}
+        <button
+          onClick={player.togglePlay}
+          style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'var(--gradient-accent)', border: 'none', color: 'white',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            boxShadow: '0 4px 12px var(--accent-glow)'
+          }}
+        >
+          {isLoading
+            ? <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
+            : isPlaying ? <PauseIcon size={20} /> : <PlayIcon size={20} />
+          }
+        </button>
 
-          {/* Next */}
-          <button className="btn btn-ghost btn-icon" onClick={player.next} aria-label="Next song">
-            <NextIcon size={20} />
-          </button>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.next} style={{ color: 'white' }}>
+          <NextIcon size={20} />
+        </button>
 
-          {/* Repeat */}
-          <button
-            className="btn btn-ghost btn-icon-sm"
-            onClick={player.toggleRepeat}
-            aria-label="Toggle repeat"
-            aria-pressed={repeat !== 'none'}
-            style={{ color: repeat !== 'none' ? 'var(--accent)' : 'var(--text-muted)', position: 'relative' }}
-          >
-            <RepeatIcon size={18} />
-            {repeat === 'one' && (
-              <span style={{
-                position: 'absolute', top: 0, right: 0, width: 10, height: 10,
-                background: 'var(--accent)', borderRadius: '50%', fontSize: 7, color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900,
-              }}>1</span>
-            )}
-          </button>
-        </div>
-
-        {/* Time */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-          <span>{formatTime(currentTime)}</span>
-          <span>/</span>
-          <span>{formatTime(player.duration)}</span>
-        </div>
+        <button
+          className="btn btn-ghost btn-icon-sm"
+          onClick={player.toggleRepeat}
+          style={{ color: repeat !== 'none' ? 'var(--accent)' : 'var(--text-muted)', position: 'relative' }}
+        >
+          <RepeatIcon size={18} />
+          {repeat === 'one' && (
+            <span style={{ position: 'absolute', top: 0, right: 0, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', fontSize: 6, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>1</span>
+          )}
+        </button>
       </div>
 
-      {/* Right — Volume, Queue, Full Player */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'flex-end' }}>
-        {/* Queue */}
-        <button className="btn btn-ghost btn-icon-sm" aria-label="Open queue" style={{ color: 'var(--text-muted)' }}>
+      {/* Right — Time, Queue, Volume */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'flex-end', paddingBottom: 4 }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          {formatTime(currentTime)} / {formatTime(player.duration)}
+        </div>
+
+        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>
           <QueueIcon size={18} />
         </button>
 
-        {/* Volume */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>
+          <LyricsIcon size={18} />
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 100 }}>
           <button
             className="btn btn-ghost btn-icon-sm"
             onClick={player.toggleMute}
-            aria-label={muted ? 'Unmute' : 'Mute'}
             style={{ color: 'var(--text-muted)' }}
           >
-            {muted || volume === 0 ? <MuteIcon size={18} /> : <VolumeIcon size={18} />}
+            {muted || volume === 0 ? <MuteIcon size={16} /> : <VolumeIcon size={16} />}
           </button>
           <input
             type="range"
@@ -201,20 +170,9 @@ export function MiniPlayer() {
             step="0.01"
             value={muted ? 0 : volume}
             onChange={e => player.setVolume(parseFloat(e.target.value))}
-            aria-label="Volume"
-            style={{
-              width: 80, accentColor: 'var(--accent)',
-              cursor: 'pointer', height: 4,
-            }}
+            style={{ width: '100%', accentColor: 'var(--accent)', height: 3 }}
           />
         </div>
-
-        {/* Full player link */}
-        <Link href="/player">
-          <button className="btn btn-ghost btn-icon-sm" aria-label="Open full player" style={{ color: 'var(--text-muted)' }}>
-            <ExpandIcon size={18} />
-          </button>
-        </Link>
       </div>
     </div>
   );
@@ -389,6 +347,14 @@ function ExpandIcon({ size = 24 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
       <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+    </svg>
+  );
+}
+
+function LyricsIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
     </svg>
   );
 }
