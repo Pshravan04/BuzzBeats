@@ -10,10 +10,18 @@ export function MiniPlayer() {
   const progressRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
+  const [isHoveredProgress, setIsHoveredProgress] = useState(false);
+  const [localLiked, setLocalLiked] = useState<boolean | null>(null);
+  const [lastSongId, setLastSongId] = useState<string | null>(null);
 
   if (!player.currentSong) return null;
 
   const { currentSong, isPlaying, progress, volume, muted, shuffle, repeat, isLoading } = player;
+
+  if (currentSong && currentSong.id !== lastSongId) {
+    setLastSongId(currentSong.id);
+    setLocalLiked(currentSong.is_liked ?? false);
+  }
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return '0:00';
@@ -30,6 +38,14 @@ export function MiniPlayer() {
 
   const currentTime = progress * player.duration;
 
+  const handleThumbsUp = () => {
+    setLocalLiked(prev => prev === true ? null : true);
+  };
+
+  const handleThumbsDown = () => {
+    setLocalLiked(prev => prev === false ? null : false);
+  };
+
   return (
     <div
       className="player-bar"
@@ -38,17 +54,43 @@ export function MiniPlayer() {
       style={{
         width: '100%', height: '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', gap: 16,
+        padding: '0 32px', gap: 24,
         background: 'transparent',
         zIndex: 100, position: 'relative'
       }}
     >
-      {/* Left: Song Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0, paddingBottom: 4 }}>
+      {/* Top Edge Progress Bar */}
+      <div 
+        ref={progressRef} 
+        style={{ 
+          position: 'absolute', top: 0, left: 0, right: 0, 
+          height: isHoveredProgress ? 5 : 3, 
+          background: 'rgba(255,255,255,0.12)', 
+          cursor: 'pointer',
+          transition: 'height 0.1s ease',
+          zIndex: 110
+        }} 
+        onClick={handleProgressClick}
+        onMouseEnter={() => setIsHoveredProgress(true)}
+        onMouseLeave={() => setIsHoveredProgress(false)}
+      >
+        <div style={{ width: `${progress * 100}%`, height: '100%', background: '#FF0000', position: 'relative' }}>
+          {isHoveredProgress && (
+            <div style={{
+              position: 'absolute', right: -6, top: '50%', transform: 'translateY(-50%)',
+              width: 12, height: 12, borderRadius: '50%', background: '#FF0000',
+              boxShadow: '0 0 6px rgba(0,0,0,0.5)'
+            }} />
+          )}
+        </div>
+      </div>
+
+      {/* Left: Song Info & Thumbs Up/Down */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0 }}>
         <Link href="/player" style={{ position: 'relative', flexShrink: 0 }}>
           <div style={{
-            width: 48, height: 48, borderRadius: '12px', overflow: 'hidden',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
+            width: 44, height: 44, borderRadius: '2px', overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
           }}>
             <img
               src={currentSong.cover_url || '/images/default-album.jpg'}
@@ -59,79 +101,89 @@ export function MiniPlayer() {
           </div>
         </Link>
 
-        <div style={{ minWidth: 0, flexShrink: 1, maxWidth: 200 }}>
+        <div style={{ minWidth: 0, flexShrink: 1, marginRight: 16 }}>
           <Link href="/player" style={{ textDecoration: 'none' }}>
-            <div className="truncate" style={{ fontWeight: 700, fontSize: '15px', color: 'white', marginBottom: 2 }}>
+            <div className="truncate" style={{ fontWeight: 600, fontSize: '14px', color: 'white', marginBottom: 2 }}>
               {currentSong.title}
             </div>
           </Link>
-          <div className="truncate" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          <div className="truncate" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             {currentSong.artist?.name ?? 'Unknown Artist'}
           </div>
         </div>
 
-        {/* Like button */}
-        <button
-          className="btn btn-ghost btn-icon-sm"
-          style={{ flexShrink: 0, color: currentSong.is_liked ? 'var(--accent)' : 'var(--text-muted)' }}
-        >
-          <HeartIcon size={20} filled={currentSong.is_liked} />
-        </button>
+        {/* Rating Thumbs */}
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          <button
+            className="btn btn-ghost btn-icon-sm"
+            onClick={handleThumbsDown}
+            style={{ color: localLiked === false ? '#FF0000' : 'var(--text-secondary)', padding: 4 }}
+            title="Dislike"
+          >
+            <ThumbsDownIcon size={18} filled={localLiked === false} />
+          </button>
+          <button
+            className="btn btn-ghost btn-icon-sm"
+            onClick={handleThumbsUp}
+            style={{ color: localLiked === true ? '#FF0000' : 'var(--text-secondary)', padding: 4 }}
+            title="Like"
+          >
+            <ThumbsUpIcon size={18} filled={localLiked === true} />
+          </button>
+        </div>
       </div>
 
       {/* Center Controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, maxWidth: 600 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
-          <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleShuffle} style={{ color: shuffle ? 'var(--accent)' : 'var(--text-muted)' }}>
-            <ShuffleIcon size={16} />
-          </button>
-          <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} style={{ color: 'var(--text-secondary)' }}>
-            <PrevIcon size={18} />
-          </button>
-          <button
-            onClick={player.togglePlay}
-            style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'white', border: 'none', color: 'black',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-            }}
-          >
-            {isLoading ? <div className="spinner" style={{ width: 14, height: 14, borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', borderTopColor: 'black' }} /> : isPlaying ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
-          </button>
-          <button className="btn btn-ghost btn-icon-sm" onClick={player.next} style={{ color: 'var(--text-secondary)' }}>
-            <NextIcon size={18} />
-          </button>
-          <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleRepeat} style={{ color: repeat !== 'none' ? 'var(--accent)' : 'var(--text-muted)', position: 'relative' }}>
-            <RepeatIcon size={16} />
-            {repeat === 'one' && <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', fontSize: 6, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>1</span>}
-          </button>
-        </div>
-        
-        {/* Progress Bar inside Center Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
-          <span>{formatTime(currentTime)}</span>
-          <div ref={progressRef} style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', borderRadius: 2 }} onClick={handleProgressClick}>
-            <div style={{ width: `${progress * 100}%`, height: '100%', background: 'white', borderRadius: 2 }} />
-          </div>
-          <span>{formatTime(player.duration)}</span>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, zIndex: 10, justifyContent: 'center', flex: 1 }}>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} style={{ color: 'white' }}>
+          <PrevIcon size={20} />
+        </button>
+        <button
+          onClick={player.togglePlay}
+          style={{
+            width: 40, height: 40, borderRadius: '50%',
+            background: 'white', border: 'none', color: 'black',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            transition: 'transform 0.1s', flexShrink: 0
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          {isLoading ? <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2, borderColor: 'rgba(0,0,0,0.1)', borderTopColor: 'black' }} /> : isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />}
+        </button>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.next} style={{ color: 'white' }}>
+          <NextIcon size={20} />
+        </button>
+
+        {/* Time Progress display */}
+        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, marginLeft: 8 }}>
+          {formatTime(currentTime)} / {formatTime(player.duration)}
+        </span>
       </div>
 
       {/* Right — Queue, Volume */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'flex-end' }}>
-        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, justifyContent: 'flex-end' }}>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleShuffle} style={{ color: shuffle ? '#FF0000' : 'var(--text-secondary)' }} title="Shuffle">
+          <ShuffleIcon size={16} />
+        </button>
+        <button className="btn btn-ghost btn-icon-sm" onClick={player.toggleRepeat} style={{ color: repeat !== 'none' ? '#FF0000' : 'var(--text-secondary)', position: 'relative' }} title="Repeat">
+          <RepeatIcon size={16} />
+          {repeat === 'one' && <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#FF0000', borderRadius: '50%', fontSize: 6, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>1</span>}
+        </button>
+        
+        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-secondary)' }} title="Queue">
           <QueueIcon size={16} />
         </button>
 
-        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-muted)' }}>
+        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-secondary)' }} title="Lyrics">
           <LyricsIcon size={18} />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 100 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 110 }}>
           <button
             className="btn btn-ghost btn-icon-sm"
             onClick={player.toggleMute}
-            style={{ color: 'var(--text-muted)' }}
+            style={{ color: 'var(--text-secondary)', padding: 4 }}
           >
             {muted || volume === 0 ? <MuteIcon size={16} /> : <VolumeIcon size={16} />}
           </button>
@@ -142,7 +194,7 @@ export function MiniPlayer() {
             step="0.01"
             value={muted ? 0 : volume}
             onChange={e => player.setVolume(parseFloat(e.target.value))}
-            style={{ width: '100%', accentColor: 'var(--accent)', height: 3 }}
+            style={{ width: '100%', accentColor: '#FF0000', height: 3 }}
           />
         </div>
       </div>
@@ -327,6 +379,22 @@ function LyricsIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+  );
+}
+
+function ThumbsUpIcon({ size = 20, filled = false }: { size?: number; filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+    </svg>
+  );
+}
+
+function ThumbsDownIcon({ size = 20, filled = false }: { size?: number; filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm12-3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/>
     </svg>
   );
 }

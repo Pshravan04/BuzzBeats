@@ -5,22 +5,27 @@
    ========================================== */
 
 :root {
-  /* BuzzBeats Dark Theme */
-  --bg-base: #000000;
-  --bg-elevated: #121212;
-  --bg-glass: rgba(18, 18, 18, 0.85);
-  --bg-glass-hover: #282828;
+  /* BuzzBeats Dark Theme (YouTube Music style) */
+  --bg-base: #030303;
+  --bg-elevated: #0f0f0f;
+  --bg-glass: rgba(15, 15, 15, 0.85);
+  --bg-glass-hover: #212121;
   
   --text-primary: #FFFFFF;
-  --text-secondary: #B3B3B3;
-  --text-muted: #6A6A6A;
+  --text-secondary: #AAAAAA;
+  --text-muted: #909090;
   
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-focus: rgba(255, 255, 255, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(255, 255, 255, 0.15);
   
-  /* Primary Color - BuzzBeats cyan / Spotify green */
-  --accent: #1DB954; 
-  --accent-hover: #1ED760;
+  /* Accent Colors (Default: YouTube Red) */
+  --accent: #FF0000; 
+  --accent-hover: #FF3333;
+  --gradient-accent: linear-gradient(135deg, #CC0000, #FF0000);
+  --accent-glow: rgba(255, 0, 0, 0.12);
+  --accent-glow-strong: rgba(255, 0, 0, 0.25);
+  --shadow-glow: 0 0 20px rgba(255, 0, 0, 0.35);
+  --gradient-primary: linear-gradient(180deg, rgba(204, 0, 0, 0.1) 0%, rgba(3, 3, 3, 0) 100%);
   
   /* Shapes & Radii */
   --radius-sm: 4px; 
@@ -40,6 +45,57 @@
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
   --text-3xl: 3rem;
+}
+
+/* Theme Configuration Overrides */
+html[data-theme='blue'] {
+  --accent: #FF0000;
+  --accent-hover: #FF3333;
+  --gradient-accent: linear-gradient(135deg, #CC0000, #FF0000);
+  --accent-glow: rgba(255, 0, 0, 0.12);
+  --accent-glow-strong: rgba(255, 0, 0, 0.25);
+  --shadow-glow: 0 0 20px rgba(255, 0, 0, 0.35);
+  --gradient-primary: linear-gradient(180deg, rgba(204, 0, 0, 0.1) 0%, rgba(3, 3, 3, 0) 100%);
+}
+
+html[data-theme='purple'] {
+  --accent: #8B5CF6;
+  --accent-hover: #A78BFA;
+  --gradient-accent: linear-gradient(135deg, #6D28D9, #8B5CF6);
+  --accent-glow: rgba(139, 92, 246, 0.15);
+  --accent-glow-strong: rgba(139, 92, 246, 0.3);
+  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.4);
+  --gradient-primary: linear-gradient(180deg, rgba(109, 40, 217, 0.15) 0%, rgba(18, 18, 18, 0) 100%);
+}
+
+html[data-theme='grey'] {
+  --accent: #94A3B8;
+  --accent-hover: #CBD5E1;
+  --gradient-accent: linear-gradient(135deg, #64748B, #94A3B8);
+  --accent-glow: rgba(148, 163, 184, 0.15);
+  --accent-glow-strong: rgba(148, 163, 184, 0.3);
+  --shadow-glow: 0 0 20px rgba(148, 163, 184, 0.4);
+  --gradient-primary: linear-gradient(180deg, rgba(100, 116, 139, 0.15) 0%, rgba(18, 18, 18, 0) 100%);
+}
+
+html[data-theme='pink'] {
+  --accent: #EC4899;
+  --accent-hover: #F472B6;
+  --gradient-accent: linear-gradient(135deg, #BE185D, #EC4899);
+  --accent-glow: rgba(236, 72, 153, 0.15);
+  --accent-glow-strong: rgba(236, 72, 153, 0.3);
+  --shadow-glow: 0 0 20px rgba(236, 72, 153, 0.4);
+  --gradient-primary: linear-gradient(180deg, rgba(190, 24, 93, 0.15) 0%, rgba(18, 18, 18, 0) 100%);
+}
+
+html[data-theme='green'] {
+  --accent: #10B981;
+  --accent-hover: #34D399;
+  --gradient-accent: linear-gradient(135deg, #047857, #10B981);
+  --accent-glow: rgba(16, 185, 129, 0.15);
+  --accent-glow-strong: rgba(16, 185, 129, 0.3);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.4);
+  --gradient-primary: linear-gradient(180deg, rgba(4, 120, 87, 0.15) 0%, rgba(18, 18, 18, 0) 100%);
 }
 
 * {
@@ -95,19 +151,19 @@ h1, h2, h3, h4, h5, h6 {
   grid-area: main;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
-  margin: 8px 8px 0 0; /* Spotify margin gap */
+  background: var(--bg-base);
   position: relative;
 }
 
 .player-area {
   grid-area: player;
-  background: #000000;
+  background: #070707;
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   padding: 0 16px;
   z-index: 50;
+  position: relative;
 }
 
 .mobile-only {
@@ -145,18 +201,17 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: blur(25px) saturate(200%);
 }
 
-/* Flat, classic iOS cards */
+/* YouTube Music Style Cards */
 .card {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s;
+  background: transparent;
+  border-radius: 6px;
+  padding: 12px;
+  transition: background 0.2s ease;
   border: none;
 }
 
 .card:hover {
-  background: #2C2C2E;
-  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .song-row {

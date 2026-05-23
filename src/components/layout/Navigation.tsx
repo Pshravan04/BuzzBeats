@@ -24,13 +24,35 @@ export function Sidebar() {
     }}>
       {/* Logo */}
       <div style={{ padding: '0 24px', marginBottom: 32 }}>
-        <Link href="/" title="BuzzBeats" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-          <div style={{ width: 32, height: 32, background: 'var(--accent)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black' }}>
-            <PlayCircleIcon size={20} />
+        <Link href="/" title="BuzzBeats" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <div style={{
+            width: 32,
+            height: 32,
+            background: '#FF0000',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            flexShrink: 0
+          }}>
+            <div style={{
+              width: 18,
+              height: 18,
+              background: 'var(--bg-base)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="white">
+                <polygon points="6 3 20 12 6 21 6 3"/>
+              </svg>
+            </div>
           </div>
           <h1 style={{ 
-            fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 800, 
-            margin: 0, letterSpacing: '-0.02em',
+            fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 800, 
+            margin: 0, letterSpacing: '-0.03em',
             color: 'white'
           }}>
             BuzzBeats
@@ -39,7 +61,7 @@ export function Sidebar() {
       </div>
 
       {/* Main nav */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, padding: '0 12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, padding: '0 12px' }}>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/' && pathname.startsWith(href));
           return (
@@ -49,16 +71,20 @@ export function Sidebar() {
               title={label}
               style={{
                 display: 'flex', alignItems: 'center', gap: 16,
-                padding: '10px 12px',
+                padding: '12px 16px',
+                borderRadius: '8px',
                 color: active ? 'white' : 'var(--text-secondary)',
+                background: active ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                 textDecoration: 'none',
-                fontWeight: 600,
-                transition: 'color 0.2s',
+                fontWeight: active ? 700 : 500,
+                transition: 'all 0.2s ease',
               }}
               onMouseEnter={e => {
+                e.currentTarget.style.background = active ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.05)';
                 if(!active) e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={e => {
+                e.currentTarget.style.background = active ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
                 if(!active) e.currentTarget.style.color = 'var(--text-secondary)';
               }}
             >

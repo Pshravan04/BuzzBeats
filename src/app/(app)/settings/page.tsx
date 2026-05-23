@@ -8,7 +8,7 @@ import Link from 'next/link';
 import type { Theme } from '@/types';
 
 const THEMES: { key: Theme; label: string; color: string; gradient: string }[] = [
-  { key: 'blue', label: 'Ocean Blue', color: '#3B82F6', gradient: 'linear-gradient(135deg, #1D4ED8, #3B82F6)' },
+  { key: 'blue', label: 'YouTube Red', color: '#FF0000', gradient: 'linear-gradient(135deg, #CC0000, #FF0000)' },
   { key: 'purple', label: 'Mystic Purple', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #6D28D9, #8B5CF6)' },
   { key: 'grey', label: 'Slate Grey', color: '#94A3B8', gradient: 'linear-gradient(135deg, #64748B, #94A3B8)' },
   { key: 'pink', label: 'Neon Pink', color: '#EC4899', gradient: 'linear-gradient(135deg, #BE185D, #EC4899)' },

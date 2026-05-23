@@ -56,40 +56,46 @@ export default function SearchPage() {
       {/* Search Header */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
-        padding: '32px 40px 24px',
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: '1px solid var(--border-subtle)',
+        padding: '24px 40px',
+        background: 'var(--bg-base)',
+        borderBottom: 'none',
       }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', marginBottom: 24, fontWeight: 800 }}>Search</h1>
-
         {/* Search input */}
-        <div style={{ position: 'relative', maxWidth: 800 }}>
-          <span style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>
-            <SearchIcon size={24} />
+        <div style={{ position: 'relative', maxWidth: 640 }}>
+          <span style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none', display: 'flex' }}>
+            <SearchIcon size={20} />
           </span>
           <input
             type="search"
             className="input"
-            placeholder="Search for any song, anywhere..."
+            placeholder="Search songs, albums, artists..."
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoComplete="off"
             aria-label="Search music"
             id="search-input"
             style={{ 
-              paddingLeft: 64, fontSize: 'var(--text-lg)', height: 64, 
-              background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)',
-              border: '2px solid transparent', boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+              paddingLeft: 56, fontSize: '16px', height: 48, 
+              background: 'rgba(255, 255, 255, 0.08)', borderRadius: 'var(--radius-full)',
+              border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: 'none',
+              color: 'white', transition: 'all 0.2s'
+            }}
+            onFocus={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            }}
+            onBlur={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
             }}
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex', background: 'transparent', border: 'none', cursor: 'pointer' }}
+              style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', display: 'flex', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
               aria-label="Clear search"
             >
-              <CloseIcon size={24} />
+              <CloseIcon size={20} />
             </button>
           )}
         </div>
@@ -167,19 +173,19 @@ export default function SearchPage() {
         {!hasSearched && (
           <>
             <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 24, letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>Browse Categories</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20 }}>
               {BROWSE_CATEGORIES.map(({ label, gradient, textColor }) => (
                 <button
                   key={label}
                   onClick={() => setQuery(label)}
                   style={{
                     background: gradient,
-                    borderRadius: 'var(--radius-xl)',
-                    padding: '24px',
+                    borderRadius: '8px',
+                    padding: '20px',
                     textAlign: 'left',
                     cursor: 'pointer',
                     position: 'relative', overflow: 'hidden',
-                    transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    transition: 'all 0.2s ease',
                     border: 'none',
                     aspectRatio: '1 / 1',
                     display: 'flex',
@@ -187,35 +193,25 @@ export default function SearchPage() {
                     justifyContent: 'space-between'
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'scale(1.02) translateY(-4px)';
-                    const blur = e.currentTarget.querySelector('.blur-glow') as HTMLElement;
+                    e.currentTarget.style.filter = 'brightness(1.1)';
                     const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                    if(blur) blur.style.transform = 'scale(1.5)';
-                    if(play) { play.style.opacity = '1'; play.style.transform = 'translateY(0)'; }
+                    if(play) { play.style.opacity = '1'; play.style.transform = 'scale(1)'; }
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                    const blur = e.currentTarget.querySelector('.blur-glow') as HTMLElement;
+                    e.currentTarget.style.filter = 'brightness(1)';
                     const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                    if(blur) blur.style.transform = 'scale(1)';
-                    if(play) { play.style.opacity = '0'; play.style.transform = 'translateY(8px)'; }
+                    if(play) { play.style.opacity = '0'; play.style.transform = 'scale(0.8)'; }
                   }}
                 >
-                  <div style={{ fontWeight: 600, color: textColor, fontSize: 'var(--text-xl)', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
+                  <div style={{ fontWeight: 700, color: textColor, fontSize: '18px', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
                   
                   <div className="play-btn" style={{
-                    opacity: 0, transform: 'translateY(8px)', position: 'absolute', bottom: 16, right: 16,
-                    background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                    padding: 8, borderRadius: 'var(--radius-full)', transition: 'all 0.3s', zIndex: 2
+                    opacity: 0, transform: 'scale(0.8)', position: 'absolute', bottom: 16, right: 16,
+                    background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+                    padding: 8, borderRadius: '50%', transition: 'all 0.2s ease', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
-                    <PlayButton size={24} />
+                    <PlayButton size={18} />
                   </div>
-                  
-                  <div className="blur-glow" style={{
-                    position: 'absolute', right: -16, bottom: -16, width: 96, height: 96,
-                    background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-full)', filter: 'blur(24px)',
-                    transition: 'transform 0.5s', zIndex: 1
-                  }}></div>
                 </button>
               ))}
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePlayer } from '@/context/PlayerContext';
 import { useAuth } from '@/context/AuthContext';
@@ -12,9 +12,12 @@ interface HomeClientProps {
   newReleases: Song[];
 }
 
+const FILTER_CHIPS = ['Energize', 'Workout', 'Relax', 'Focus', 'Commute'];
+
 export default function HomeClient({ trendingSongs, popularHits, newReleases }: HomeClientProps) {
   const { user } = useAuth();
   const player = usePlayer();
+  const [activeChip, setActiveChip] = useState<string | null>(null);
 
   return (
     <div style={{ minHeight: '100%', padding: '24px 24px 120px', position: 'relative' }}>
@@ -22,12 +25,12 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
       {/* Top Gradient Background */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 332,
-        background: 'linear-gradient(180deg, rgba(30,215,96,0.15) 0%, rgba(18,18,18,0) 100%)',
+        background: 'var(--gradient-primary)',
         zIndex: 0, pointerEvents: 'none'
       }} />
 
       {/* Header Area */}
-      <div style={{ marginBottom: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-ghost btn-icon-sm" style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}><ChevronLeftIcon size={24} /></button>
           <button className="btn btn-ghost btn-icon-sm" style={{ background: 'rgba(0,0,0,0.7)', color: 'white', opacity: 0.5 }}><ChevronRightIcon size={24} /></button>
@@ -43,6 +46,42 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
             {user?.display_name?.[0]?.toUpperCase() ?? 'U'}
           </button>
         </div>
+      </div>
+
+      {/* Filter Chips */}
+      <div style={{
+        display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8, marginBottom: 32,
+        scrollbarWidth: 'none', msOverflowStyle: 'none', position: 'relative', zIndex: 1
+      }}>
+        {FILTER_CHIPS.map(chip => {
+          const isActive = activeChip === chip;
+          return (
+            <button
+              key={chip}
+              onClick={() => setActiveChip(prev => prev === chip ? null : chip)}
+              style={{
+                background: isActive ? 'white' : 'rgba(255, 255, 255, 0.1)',
+                color: isActive ? 'black' : 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={e => {
+                if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+              }}
+              onMouseLeave={e => {
+                if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              }}
+            >
+              {chip}
+            </button>
+          );
+        })}
       </div>
 
       {/* Greetings / Top Mixes (6 card layout) */}
