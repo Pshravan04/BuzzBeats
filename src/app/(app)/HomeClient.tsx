@@ -90,7 +90,7 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
           Good evening
         </h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+        <div className="greeting-grid">
           {['Liked Songs', 'Daily Mix 1', 'Release Radar', 'Discover Weekly', 'On Repeat', 'Top Hits'].map((title, i) => (
             <div key={title} className="song-row" style={{
               background: 'rgba(255,255,255,0.05)', borderRadius: 4, height: 64,

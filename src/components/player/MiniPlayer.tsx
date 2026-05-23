@@ -217,56 +217,53 @@ export function MobileMiniPlayer() {
       className="mobile-only"
       style={{
         position: 'fixed',
-        bottom: 'calc(80px + env(safe-area-inset-bottom) + 12px)',
-        left: 12, right: 12,
-        zIndex: 50,
+        bottom: 'calc(65px + env(safe-area-inset-bottom))',
+        left: 0, right: 0,
+        zIndex: 120,
       }}
     >
       <div style={{
-        borderRadius: 'var(--radius-lg)',
+        background: '#0f0f0f',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
       }}>
-        {/* Progress */}
-        <div style={{ height: 2, background: 'rgba(255,255,255,0.1)' }}>
-          <div style={{ height: '100%', width: `${progress * 100}%`, background: 'var(--text-primary)' }} />
+        {/* Progress Line */}
+        <div style={{ height: 2, background: 'rgba(255,255,255,0.12)' }}>
+          <div style={{ height: '100%', width: `${progress * 100}%`, background: '#FF0000' }} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px' }}>
           <img
             src={currentSong.cover_url}
             alt={currentSong.title}
-            style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
+            style={{ width: 40, height: 40, borderRadius: 2, objectFit: 'cover', flexShrink: 0 }}
             onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
           />
 
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{currentSong.title}</div>
-            <div className="truncate" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+            <div className="truncate" style={{ fontWeight: 600, fontSize: '13px', color: 'white', marginBottom: 2 }}>{currentSong.title}</div>
+            <div className="truncate" style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               {currentSong.artist?.name ?? 'Unknown'}
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} aria-label="Previous">
-              <PrevIcon size={20} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} aria-label="Previous" style={{ color: 'white', padding: 8 }}>
+              <PrevIcon size={18} />
             </button>
             <button
-              className="btn btn-primary btn-icon-sm"
+              className="btn btn-ghost btn-icon-sm"
               onClick={player.togglePlay}
               aria-label={isPlaying ? 'Pause' : 'Play'}
-              style={{ width: 40, height: 40 }}
+              style={{ color: 'white', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
             >
               {isLoading
-                ? <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                ? <div className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
                 : isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />
               }
             </button>
-            <button className="btn btn-ghost btn-icon-sm" onClick={player.next} aria-label="Next">
-              <NextIcon size={20} />
+            <button className="btn btn-ghost btn-icon-sm" onClick={player.next} aria-label="Next" style={{ color: 'white', padding: 8 }}>
+              <NextIcon size={18} />
             </button>
           </div>
         </div>

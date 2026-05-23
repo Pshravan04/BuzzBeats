@@ -255,6 +255,12 @@ h1, h2, h3, h4, h5, h6 {
   gap: 20px;
 }
 
+.greeting-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
 /* Forms & Buttons */
 .btn {
   display: inline-flex;
@@ -379,8 +385,8 @@ input[type=range]:focus {
     grid-column: 1;
     border-radius: 0;
     margin: 0;
-    /* Account for bottom nav + mini player */
-    padding-bottom: 160px; 
+    /* Account for bottom nav + mini player (flush design) */
+    padding-bottom: 150px; 
   }
   .desktop-only {
     display: none !important;
@@ -389,15 +395,19 @@ input[type=range]:focus {
     display: block;
   }
   .page-container {
-    padding: 20px;
-    padding-top: env(safe-area-inset-top, 20px);
+    padding: 16px;
+    padding-top: env(safe-area-inset-top, 16px);
   }
   .grid-cards {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 16px;
+    gap: 12px;
+  }
+  .greeting-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
   }
   .section-title {
-    font-size: 1.5rem; /* Larger on mobile for Apple Music feel */
+    font-size: 1.35rem;
     font-weight: 800;
   }
 }

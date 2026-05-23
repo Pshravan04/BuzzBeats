@@ -140,11 +140,14 @@ export function MobileNav() {
         left: 0,
         right: 0,
         height: '65px',
-        background: 'linear-gradient(transparent, rgba(0,0,0,0.9) 20%)',
+        background: '#0f0f0f',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        zIndex: 50,
+        zIndex: 130,
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
@@ -160,14 +163,15 @@ export function MobileNav() {
             key={href}
             href={href}
             style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-              color: active ? 'var(--accent)' : 'var(--text-secondary)',
-              padding: '8px 20px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              color: active ? 'white' : 'var(--text-secondary)',
+              padding: '6px 20px',
               textDecoration: 'none',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              opacity: active ? 1 : 0.8
             }}
           >
-            <Icon size={24} />
+            <Icon size={22} />
             <span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{label}</span>
           </Link>
         );
