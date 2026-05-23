@@ -33,7 +33,7 @@ export function Sidebar() {
             margin: 0, letterSpacing: '-0.02em',
             color: 'white'
           }}>
-            Freefy
+            BuzzBeats
           </h1>
         </Link>
       </div>

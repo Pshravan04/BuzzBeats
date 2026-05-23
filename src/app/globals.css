@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ==========================================
-   Freefy / Spotify-Style Design System
+   BuzzBeats / Spotify-Style Design System
    ========================================== */
 
 :root {
-  /* Freefy Dark Theme */
+  /* BuzzBeats Dark Theme */
   --bg-base: #000000;
   --bg-elevated: #121212;
   --bg-glass: rgba(18, 18, 18, 0.85);
@@ -18,7 +18,7 @@
   --border-subtle: rgba(255, 255, 255, 0.1);
   --border-focus: rgba(255, 255, 255, 0.2);
   
-  /* Primary Color - Freefy cyan / Spotify green */
+  /* Primary Color - BuzzBeats cyan / Spotify green */
   --accent: #1DB954; 
   --accent-hover: #1ED760;
   
