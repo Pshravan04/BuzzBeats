@@ -87,7 +87,7 @@ export function MiniPlayer() {
 
       {/* Left: Song Info & Thumbs Up/Down */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 0 }}>
-        <Link href="/player" style={{ position: 'relative', flexShrink: 0 }}>
+        <div onClick={() => player.setFullPlayerOpen(true)} style={{ cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
           <div style={{
             width: 44, height: 44, borderRadius: '2px', overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
@@ -99,14 +99,14 @@ export function MiniPlayer() {
               onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }}
             />
           </div>
-        </Link>
+        </div>
 
         <div style={{ minWidth: 0, flexShrink: 1, marginRight: 16 }}>
-          <Link href="/player" style={{ textDecoration: 'none' }}>
+          <div onClick={() => player.setFullPlayerOpen(true)} style={{ cursor: 'pointer' }}>
             <div className="truncate" style={{ fontWeight: 600, fontSize: '14px', color: 'white', marginBottom: 2 }}>
               {currentSong.title}
             </div>
-          </Link>
+          </div>
           <div className="truncate" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             {currentSong.artist?.name ?? 'Unknown Artist'}
           </div>
@@ -175,7 +175,7 @@ export function MiniPlayer() {
           <QueueIcon size={16} />
         </button>
 
-        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-secondary)' }} title="Lyrics">
+        <button className="btn btn-ghost btn-icon-sm" style={{ color: 'var(--text-secondary)' }} title="Lyrics" onClick={() => player.setFullPlayerOpen(true)}>
           <LyricsIcon size={18} />
         </button>
 
@@ -222,10 +222,11 @@ export function MobileMiniPlayer() {
         zIndex: 120,
       }}
     >
-      <div style={{
+      <div onClick={() => player.setFullPlayerOpen(true)} style={{
         background: '#0f0f0f',
         borderTop: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
+        cursor: 'pointer'
       }}>
         {/* Progress Line */}
         <div style={{ height: 2, background: 'rgba(255,255,255,0.12)' }}>
@@ -248,12 +249,12 @@ export function MobileMiniPlayer() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <button className="btn btn-ghost btn-icon-sm" onClick={player.prev} aria-label="Previous" style={{ color: 'white', padding: 8 }}>
+            <button className="btn btn-ghost btn-icon-sm" onClick={(e) => { e.stopPropagation(); player.prev(); }} aria-label="Previous" style={{ color: 'white', padding: 8 }}>
               <PrevIcon size={18} />
             </button>
             <button
               className="btn btn-ghost btn-icon-sm"
-              onClick={player.togglePlay}
+              onClick={(e) => { e.stopPropagation(); player.togglePlay(); }}
               aria-label={isPlaying ? 'Pause' : 'Play'}
               style={{ color: 'white', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
             >
@@ -262,7 +263,7 @@ export function MobileMiniPlayer() {
                 : isPlaying ? <PauseIcon size={18} /> : <PlayIcon size={18} />
               }
             </button>
-            <button className="btn btn-ghost btn-icon-sm" onClick={player.next} aria-label="Next" style={{ color: 'white', padding: 8 }}>
+            <button className="btn btn-ghost btn-icon-sm" onClick={(e) => { e.stopPropagation(); player.next(); }} aria-label="Next" style={{ color: 'white', padding: 8 }}>
               <NextIcon size={18} />
             </button>
           </div>

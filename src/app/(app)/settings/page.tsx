@@ -8,11 +8,11 @@ import Link from 'next/link';
 import type { Theme } from '@/types';
 
 const THEMES: { key: Theme; label: string; color: string; gradient: string }[] = [
-  { key: 'blue', label: 'YouTube Red', color: '#FF0000', gradient: 'linear-gradient(135deg, #CC0000, #FF0000)' },
-  { key: 'purple', label: 'Mystic Purple', color: '#8B5CF6', gradient: 'linear-gradient(135deg, #6D28D9, #8B5CF6)' },
-  { key: 'grey', label: 'Slate Grey', color: '#94A3B8', gradient: 'linear-gradient(135deg, #64748B, #94A3B8)' },
-  { key: 'pink', label: 'Neon Pink', color: '#EC4899', gradient: 'linear-gradient(135deg, #BE185D, #EC4899)' },
-  { key: 'green', label: 'Emerald Green', color: '#10B981', gradient: 'linear-gradient(135deg, #047857, #10B981)' },
+  { key: 'blue', label: 'YouTube Red', color: '#FF0000', gradient: '#FF0000' },
+  { key: 'purple', label: 'Mystic Purple', color: '#8B5CF6', gradient: '#8B5CF6' },
+  { key: 'grey', label: 'Slate Grey', color: '#94A3B8', gradient: '#94A3B8' },
+  { key: 'pink', label: 'Neon Pink', color: '#EC4899', gradient: '#EC4899' },
+  { key: 'green', label: 'Emerald Green', color: '#10B981', gradient: '#10B981' },
 ];
 
 export default function SettingsPage() {
@@ -21,7 +21,7 @@ export default function SettingsPage() {
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
-  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'account' | 'about'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'artists' | 'about'>('profile');
   const supabase = createClient();
 
   const saveProfile = async () => {
@@ -39,17 +39,17 @@ export default function SettingsPage() {
 
   const TABS = [
     { key: 'profile', label: 'Profile', icon: '👤' },
-    { key: 'appearance', label: 'Appearance', icon: '🎨' },
-    { key: 'account', label: 'Account', icon: '⚙️' },
-    { key: 'about', label: 'About', icon: 'ℹ️' },
+    { key: 'preferences', label: 'Preferences', icon: '⚙️' },
+    { key: 'artists', label: 'Favorite Artists', icon: '🎵' },
+    { key: 'about', label: 'About App', icon: 'ℹ️' },
   ] as const;
 
   return (
-    <div style={{ minHeight: '100%' }}>
+    <div className="page-container" style={{ minHeight: '100%', paddingBottom: 100 }}>
       {/* Header */}
-      <div style={{ padding: '24px 24px 0', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 0 }}>
+      <div style={{ padding: '24px 0 0', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 0 }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', marginBottom: 20 }}>Settings</h1>
-        <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 0 }}>
+        <div style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 0, scrollbarWidth: 'none' }}>
           {TABS.map(({ key, label, icon }) => (
             <button
               key={key}
@@ -73,7 +73,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="page-container" style={{ maxWidth: 640, paddingTop: 32 }}>
+      <div style={{ maxWidth: 640, paddingTop: 32 }}>
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
@@ -91,7 +91,7 @@ export default function SettingsPage() {
               <>
                 {/* Avatar */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div className="avatar-placeholder" style={{ width: 80, height: 80, fontSize: 32, background: 'var(--gradient-accent)' }}>
+                  <div className="avatar-placeholder" style={{ width: 80, height: 80, fontSize: 32, background: 'var(--accent)', color: 'black' }}>
                     {user.display_name?.[0]?.toUpperCase()}
                   </div>
                   <div>
@@ -123,13 +123,19 @@ export default function SettingsPage() {
                   </button>
                   {saveMsg && <span style={{ color: '#10b981', fontSize: 'var(--text-sm)' }}>✓ {saveMsg}</span>}
                 </div>
+
+                <div style={{ marginTop: 24 }}>
+                   <button className="btn btn-secondary btn-sm" onClick={signOut}>
+                     Sign Out
+                   </button>
+                </div>
               </>
             )}
           </div>
         )}
 
-        {/* Appearance Tab */}
-        {activeTab === 'appearance' && (
+        {/* Preferences Tab */}
+        {activeTab === 'preferences' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             <div>
               <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 8 }}>Theme Color</h2>
@@ -156,8 +162,6 @@ export default function SettingsPage() {
                     <div style={{
                       width: 48, height: 48, borderRadius: '50%',
                       background: gradient,
-                      boxShadow: theme === key ? `0 0 20px ${color}60` : 'none',
-                      transition: 'box-shadow 0.3s',
                     }} />
                     <div style={{ fontWeight: theme === key ? 700 : 500, fontSize: 'var(--text-sm)', color: theme === key ? color : 'var(--text-primary)' }}>
                       {label}
@@ -168,32 +172,9 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Preview */}
-            <div style={{ padding: 24, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-subtle)' }}>
-              <h3 style={{ marginBottom: 16 }}>Theme Preview</h3>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button className="btn btn-primary btn-sm">Primary</button>
-                <button className="btn btn-secondary btn-sm">Secondary</button>
-                <span className="badge badge-accent">Live</span>
-                <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 32 }}>
-                  {[1,2,3,4,5].map(i => <div key={i} className="beat-bar" style={{ width: 6 }} />)}
-                </div>
-              </div>
-              <div style={{ marginTop: 16, height: 6, background: 'var(--border-default)', borderRadius: 'var(--radius-full)' }}>
-                <div style={{ height: '100%', width: '60%', background: 'var(--gradient-accent)', borderRadius: 'var(--radius-full)' }} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Account Tab */}
-        {activeTab === 'account' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 8 }}>Account Settings</h2>
-
             {user && (
               <>
-                <div className="card" style={{ padding: 20 }}>
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}>
                   <h3 style={{ marginBottom: 4 }}>Spotify Integration</h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 16 }}>
                     {user.spotify_connected ? '✅ Connected to Spotify' : 'Import your playlists from Spotify'}
@@ -205,7 +186,7 @@ export default function SettingsPage() {
                   </Link>
                 </div>
 
-                <div className="card" style={{ padding: 20 }}>
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 24 }}>
                   <h3 style={{ marginBottom: 4 }}>Privacy</h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 12 }}>
                     Control who can see your activity
@@ -215,23 +196,17 @@ export default function SettingsPage() {
                     <span style={{ fontSize: 'var(--text-sm)' }}>Show listening activity to friends</span>
                   </label>
                 </div>
-
-                <div className="card" style={{ padding: 20, border: '1px solid rgba(239,68,68,0.3)' }}>
-                  <h3 style={{ marginBottom: 4, color: '#ef4444' }}>Danger Zone</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 16 }}>
-                    These actions are irreversible
-                  </p>
-                  <div style={{ display: 'flex', gap: 12 }}>
-                    <button className="btn btn-secondary btn-sm" onClick={signOut}>
-                      Sign Out
-                    </button>
-                    <button className="btn btn-sm" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
               </>
             )}
+          </div>
+        )}
+
+        {/* Favorite Artists Tab */}
+        {activeTab === 'artists' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 8 }}>Favorite Artists</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>You haven't added any favorite artists yet.</p>
+            <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Search Artists</button>
           </div>
         )}
 

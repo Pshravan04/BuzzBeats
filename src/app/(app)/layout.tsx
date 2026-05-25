@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Sidebar, MobileNav } from '@/components/layout/Navigation';
 import { MiniPlayer, MobileMiniPlayer } from '@/components/player/MiniPlayer';
+import { FullPlayerOverlay } from '@/components/player/FullPlayerOverlay';
 
 export const metadata: Metadata = {
   title: {
@@ -32,6 +33,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Bottom Nav */}
       <MobileNav />
+
+      {/* Full Player Overlay (Lyrics View) */}
+      <FullPlayerOverlay />
     </div>
   );
 }

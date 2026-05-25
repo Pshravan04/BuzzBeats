@@ -128,6 +128,7 @@ export interface PlayerState {
   shuffle: boolean;
   repeat: 'none' | 'one' | 'all';
   isLoading: boolean;
+  isFullPlayerOpen: boolean;
 }
 
 export interface PlayerActions {
@@ -146,6 +147,7 @@ export interface PlayerActions {
   removeFromQueue: (index: number) => void;
   clearQueue: () => void;
   playQueue: (songs: Song[], startIndex?: number) => void;
+  setFullPlayerOpen: (open: boolean) => void;
 }
 
 // ==========================================

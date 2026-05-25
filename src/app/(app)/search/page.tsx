@@ -41,24 +41,23 @@ export default function SearchPage() {
   }, [query, search]);
 
   const BROWSE_CATEGORIES = [
-    { label: 'Electronic', gradient: 'linear-gradient(90deg, #b76dff 0%, #f751a1 100%)', textColor: 'var(--text-primary)' },
-    { label: 'Indie', gradient: 'linear-gradient(to bottom right, #f751a1, #8c0053)', textColor: 'white' },
-    { label: 'Lo-Fi', gradient: 'linear-gradient(to bottom right, #0566d9, #004395)', textColor: 'white' },
-    { label: 'Hip Hop', gradient: 'linear-gradient(to bottom right, #FF8A00, #FF2E00)', textColor: 'white' },
-    { label: 'Ambient', gradient: 'linear-gradient(to bottom right, #00C2FF, #0047FF)', textColor: 'white' },
-    { label: 'Rock', gradient: 'linear-gradient(to bottom right, #93000a, #690005)', textColor: 'white' },
-    { label: 'Pop Hits', gradient: 'linear-gradient(to bottom right, #ec4899, #be185d)', textColor: 'white' },
-    { label: 'Jazz', gradient: 'linear-gradient(to bottom right, #8b5cf6, #5b21b6)', textColor: 'white' },
+    { label: 'Electronic', color: '#27856A' },
+    { label: 'Indie', color: '#1E3264' },
+    { label: 'Lo-Fi', color: '#8D67AB' },
+    { label: 'Hip Hop', color: '#E8115B' },
+    { label: 'Ambient', color: '#509BF5' },
+    { label: 'Rock', color: '#E13300' },
+    { label: 'Pop Hits', color: '#148A08' },
+    { label: 'Jazz', color: '#7358FF' },
   ];
 
   return (
-    <div style={{ minHeight: '100%', paddingBottom: 100 }}>
+    <div className="page-container" style={{ minHeight: '100%', paddingBottom: 100 }}>
       {/* Search Header */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 10,
-        padding: '24px 40px',
+        padding: '24px 0px 16px',
         background: 'var(--bg-base)',
-        borderBottom: 'none',
       }}>
         {/* Search input */}
         <div style={{ position: 'relative', maxWidth: 640 }}>
@@ -68,7 +67,7 @@ export default function SearchPage() {
           <input
             type="search"
             className="input"
-            placeholder="Search songs, albums, artists..."
+            placeholder="What do you want to play?"
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoComplete="off"
@@ -76,17 +75,17 @@ export default function SearchPage() {
             id="search-input"
             style={{ 
               paddingLeft: 56, fontSize: '16px', height: 48, 
-              background: 'rgba(255, 255, 255, 0.08)', borderRadius: 'var(--radius-full)',
-              border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: 'none',
-              color: 'white', transition: 'all 0.2s'
+              background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)',
+              border: '1px solid transparent', boxShadow: 'none',
+              color: 'var(--text-primary)', transition: 'all 0.2s', width: '100%'
             }}
             onFocus={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.background = 'var(--bg-surface)';
+              e.currentTarget.style.border = '1px solid var(--border-color)';
             }}
             onBlur={e => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.background = 'var(--bg-elevated)';
+              e.currentTarget.style.border = '1px solid transparent';
             }}
           />
           {query && (
@@ -174,12 +173,12 @@ export default function SearchPage() {
           <>
             <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 24, letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>Browse Categories</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20 }}>
-              {BROWSE_CATEGORIES.map(({ label, gradient, textColor }) => (
+              {BROWSE_CATEGORIES.map(({ label, color }) => (
                 <button
                   key={label}
                   onClick={() => setQuery(label)}
                   style={{
-                    background: gradient,
+                    backgroundColor: color,
                     borderRadius: '8px',
                     padding: '20px',
                     textAlign: 'left',
@@ -203,7 +202,7 @@ export default function SearchPage() {
                     if(play) { play.style.opacity = '0'; play.style.transform = 'scale(0.8)'; }
                   }}
                 >
-                  <div style={{ fontWeight: 700, color: textColor, fontSize: '18px', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
+                  <div style={{ fontWeight: 700, color: 'white', fontSize: '18px', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
                   
                   <div className="play-btn" style={{
                     opacity: 0, transform: 'scale(0.8)', position: 'absolute', bottom: 16, right: 16,

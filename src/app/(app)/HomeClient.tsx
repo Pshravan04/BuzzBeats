@@ -20,31 +20,23 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
   const [activeChip, setActiveChip] = useState<string | null>(null);
 
   return (
-    <div style={{ minHeight: '100%', padding: '24px 24px 120px', position: 'relative' }}>
+    <div className="page-container" style={{ minHeight: '100%', paddingBottom: 120, position: 'relative' }}>
       
-      {/* Top Gradient Background */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: 332,
-        background: 'var(--gradient-primary)',
-        zIndex: 0, pointerEvents: 'none'
-      }} />
-
       {/* Header Area */}
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-ghost btn-icon-sm" style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}><ChevronLeftIcon size={24} /></button>
-          <button className="btn btn-ghost btn-icon-sm" style={{ background: 'rgba(0,0,0,0.7)', color: 'white', opacity: 0.5 }}><ChevronRightIcon size={24} /></button>
+      <div style={{ marginBottom: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="desktop-only" style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-ghost btn-icon-sm" style={{ background: 'var(--bg-elevated)', color: 'white', borderRadius: '50%' }}><ChevronLeftIcon size={24} /></button>
+          <button className="btn btn-ghost btn-icon-sm" style={{ background: 'var(--bg-elevated)', color: 'white', opacity: 0.5, borderRadius: '50%' }}><ChevronRightIcon size={24} /></button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button style={{ background: 'white', color: 'black', border: 'none', borderRadius: 20, padding: '8px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-            Explore Premium
-          </button>
-          <button className="btn btn-ghost btn-icon-sm" style={{ background: 'rgba(0,0,0,0.7)', color: 'white' }}>
-            <BellIcon size={20} />
-          </button>
-          <button style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-elevated)', border: 'none', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            {user?.display_name?.[0]?.toUpperCase() ?? 'U'}
-          </button>
+        <div className="mobile-only">
+          <h2 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>Good evening</h2>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
+          <Link href="/settings">
+            <button style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', border: 'none', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
+              {user?.display_name?.[0]?.toUpperCase() ?? 'U'}
+            </button>
+          </Link>
         </div>
       </div>
 

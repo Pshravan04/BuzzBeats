@@ -170,3 +170,24 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// ==========================================
+// Messaging (Download Audio)
+// ==========================================
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'DOWNLOAD_AUDIO') {
+    event.waitUntil(
+      caches.open(DYNAMIC_CACHE).then(async (cache) => {
+        try {
+          const response = await fetch(event.data.url);
+          if (response.ok) {
+            await cache.put(event.data.url, response.clone());
+            console.log(`[SW] Cached audio: ${event.data.url}`);
+          }
+        } catch (err) {
+          console.error(`[SW] Failed to cache audio:`, err);
+        }
+      })
+    );
+  }
+});

@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Discover', icon: HomeIcon },
+  { href: '/', label: 'Home', icon: HomeIcon },
   { href: '/search', label: 'Search', icon: SearchIcon },
-  { href: '/library', label: 'Library', icon: LibraryIcon },
-  { href: '/room/create', label: 'Collab', icon: UsersIcon },
-  { href: '/player', label: 'Now Playing', icon: PlayCircleIcon },
+  { href: '/library', label: 'Your Library', icon: LibraryIcon },
+  { href: '/playlist', label: 'Create Playlist', icon: PlusIcon },
+  { href: '/room/create', label: 'Collab Session', icon: UsersIcon },
 ];
 
 export function Sidebar() {
@@ -28,7 +28,7 @@ export function Sidebar() {
           <div style={{
             width: 32,
             height: 32,
-            background: '#FF0000',
+            background: 'var(--text-primary)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -74,17 +74,15 @@ export function Sidebar() {
                 padding: '12px 16px',
                 borderRadius: '8px',
                 color: active ? 'white' : 'var(--text-secondary)',
-                background: active ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                background: active ? 'var(--bg-elevated)' : 'transparent',
                 textDecoration: 'none',
                 fontWeight: active ? 700 : 500,
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = active ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.05)';
-                if(!active) e.currentTarget.style.color = 'white';
+                e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = active ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
                 if(!active) e.currentTarget.style.color = 'var(--text-secondary)';
               }}
             >
@@ -106,14 +104,14 @@ export function Sidebar() {
             background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
             textDecoration: 'none', transition: 'all 0.2s'
           }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--text-secondary)'}
           onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-subtle)'}
           >
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'var(--accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'white', fontWeight: 800, fontSize: 14
+              color: 'black', fontWeight: 800, fontSize: 14
             }}>
               {user.display_name?.[0]?.toUpperCase() ?? 'U'}
             </div>
@@ -140,10 +138,8 @@ export function MobileNav() {
         left: 0,
         right: 0,
         height: '65px',
-        background: '#0f0f0f',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: 'var(--bg-base)',
+        borderTop: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
@@ -155,7 +151,7 @@ export function MobileNav() {
         { href: '/', label: 'Home', icon: HomeIcon },
         { href: '/search', label: 'Search', icon: SearchIcon },
         { href: '/library', label: 'Library', icon: LibraryIcon },
-        { href: '/player', label: 'Playing', icon: PlayCircleIcon },
+        { href: '/settings', label: 'Profile', icon: UserIcon },
       ].map(({ href, label, icon: Icon }) => {
         const active = pathname === href || (href !== '/' && pathname.startsWith(href));
         return (
@@ -171,7 +167,7 @@ export function MobileNav() {
               opacity: active ? 1 : 0.8
             }}
           >
-            <Icon size={22} />
+            <Icon size={24} />
             <span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{label}</span>
           </Link>
         );
@@ -187,7 +183,7 @@ export function MobileNav() {
 function HomeIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="22" y1="12" x2="20" y2="12"/><line x1="4" y1="12" x2="2" y2="12"/><line x1="19.07" y1="4.93" x2="17.66" y2="6.34"/><line x1="6.34" y1="17.66" x2="4.93" y2="19.07"/><line x1="19.07" y1="19.07" x2="17.66" y2="17.66"/><line x1="6.34" y1="6.34" x2="4.93" y2="4.93"/>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
     </svg>
   );
 }
@@ -208,6 +204,14 @@ function LibraryIcon({ size = 24 }: { size?: number }) {
   );
 }
 
+function PlusIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>
+    </svg>
+  );
+}
+
 function UsersIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -216,10 +220,10 @@ function UsersIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-function PlayCircleIcon({ size = 24 }: { size?: number }) {
+function UserIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
     </svg>
   );
 }

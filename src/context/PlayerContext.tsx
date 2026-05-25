@@ -29,6 +29,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     shuffle: false,
     repeat: 'none',
     isLoading: false,
+    isFullPlayerOpen: false,
   });
 
   // Initialize audio element
@@ -296,6 +297,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         isPlaying: true,
         progress: 0,
       }));
+    }, []),
+
+    setFullPlayerOpen: useCallback((open: boolean) => {
+      setState(prev => ({ ...prev, isFullPlayerOpen: open }));
     }, []),
   };
 

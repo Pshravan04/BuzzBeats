@@ -62,29 +62,23 @@ export default function SignupPage() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <div style={{
-          position: 'absolute', width: 500, height: 500, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--accent-glow-strong) 0%, transparent 70%)',
-          top: -150, right: -100, animation: 'float 7s ease-in-out infinite',
-        }} />
-      </div>
+      {/* Animated background removed for clean look */}
 
       <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Link href="/">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 8, cursor: 'pointer' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--gradient-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-glow)' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 3a9 9 0 110 18A9 9 0 0112 3zm0 2a7 7 0 100 14A7 7 0 0012 5zm0 2a5 5 0 110 10A5 5 0 0112 7zm0 2a3 3 0 100 6 3 3 0 000-6z"/></svg>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M12 3a9 9 0 110 18A9 9 0 0112 3zm0 2a7 7 0 100 14A7 7 0 0012 5zm0 2a5 5 0 110 10A5 5 0 0112 7zm0 2a3 3 0 100 6 3 3 0 000-6z"/></svg>
               </div>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-xl)', background: 'var(--gradient-accent)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>BuzzBeats</span>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-xl)', color: 'var(--text-primary)' }}>BuzzBeats</span>
             </div>
           </Link>
           <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 4 }}>Create your account</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>Join millions listening on BuzzBeats</p>
         </div>
 
-        <div className="glass" style={{ borderRadius: 'var(--radius-xl)', padding: 32 }}>
+        <div style={{ background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', padding: 32, border: '1px solid var(--border-subtle)' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label htmlFor="signup-name" style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 8 }}>Display Name</label>

@@ -37,19 +37,7 @@ export default function LoginPage() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Animated background */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <div style={{
-          position: 'absolute', width: 600, height: 600, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--accent-glow-strong) 0%, transparent 70%)',
-          top: -200, left: -200, animation: 'float 8s ease-in-out infinite',
-        }} />
-        <div style={{
-          position: 'absolute', width: 400, height: 400, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
-          bottom: -100, right: -100, animation: 'float 6s ease-in-out 2s infinite',
-        }} />
-      </div>
+      {/* Animated background removed for clean look */}
 
       <div style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}>
         {/* Logo */}
@@ -58,15 +46,14 @@ export default function LoginPage() {
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 8, cursor: 'pointer' }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 14,
-                background: 'var(--gradient-accent)',
+                background: 'var(--accent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: 'var(--shadow-glow)',
               }}>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="black">
                   <path d="M12 3a9 9 0 110 18A9 9 0 0112 3zm0 2a7 7 0 100 14A7 7 0 0012 5zm0 2a5 5 0 110 10A5 5 0 0112 7zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
                 </svg>
               </div>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-2xl)', background: 'var(--gradient-accent)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-2xl)', color: 'var(--text-primary)' }}>
                 BuzzBeats
               </span>
             </div>
@@ -76,7 +63,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="glass" style={{ borderRadius: 'var(--radius-xl)', padding: 32 }}>
+        <div style={{ background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', padding: 32, border: '1px solid var(--border-subtle)' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label htmlFor="login-email" style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 8 }}>Email</label>

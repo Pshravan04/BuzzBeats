@@ -85,22 +85,22 @@ export default function PlaylistPage() {
     <div style={{ minHeight: '100%' }}>
       {/* Hero */}
       <div style={{
-        background: 'var(--bg-glass)',
+        background: 'var(--bg-elevated)',
         padding: '60px 40px 40px',
         display: 'flex', alignItems: 'flex-end', gap: 32, flexWrap: 'wrap',
         borderBottom: '1px solid var(--border-subtle)',
       }}>
         {/* Cover */}
         {playlist.cover_url ? (
-          <div style={{ width: 240, height: 240, borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', flexShrink: 0 }}>
+          <div style={{ width: 240, height: 240, borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', flexShrink: 0 }}>
             <img src={playlist.cover_url} alt={playlist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         ) : (
           <div style={{
             width: 240, height: 240, borderRadius: 'var(--radius-lg)',
-            background: 'var(--gradient-accent)',
+            background: 'var(--bg-surface)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 80, boxShadow: '0 20px 40px rgba(0,0,0,0.5)', flexShrink: 0,
+            fontSize: 80, border: '1px solid var(--border-subtle)', flexShrink: 0,
           }}>🎵</div>
         )}
 
