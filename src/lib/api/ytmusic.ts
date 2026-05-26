@@ -1,7 +1,7 @@
 import YTMusic from 'ytmusic-api';
 
 let ytmusic: YTMusic | null = null;
-let initPromise: Promise<void> | null = null;
+let initPromise: Promise<any> | null = null;
 
 export async function getYTMusic() {
   if (ytmusic) return ytmusic;
