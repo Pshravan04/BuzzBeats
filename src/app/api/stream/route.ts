@@ -15,57 +15,58 @@ export async function GET(request: Request) {
     let videoTitle = '';
     let videoArtist = '';
 
-    // 1. Try ytdl-core first
+    // Step 1: Get Basic Info quickly to find Title and Artist
     try {
-      const info = await ytdl.getInfo(id);
-      videoTitle = info.videoDetails.title;
-      videoArtist = info.videoDetails.author.name;
-
-      let format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
-      if (!format || !format.url) format = ytdl.chooseFormat(info.formats, { filter: 'audio' }) || format;
-      if (!format || !format.url) format = info.formats[0];
-      
-      if (format && format.url) {
-        return NextResponse.redirect(format.url);
-      }
+      const basicInfo = await ytdl.getBasicInfo(id);
+      videoTitle = basicInfo.videoDetails.title;
+      videoArtist = basicInfo.videoDetails.author.name;
     } catch (err) {
-      console.warn('ytdl-core failed, trying fallback to JioSaavn...', err);
+      console.warn('ytdl getBasicInfo failed, using ytmusic-api...', err);
+      const YTMusic = (await import('ytmusic-api')).default;
+      const ytmusic = new YTMusic();
+      await ytmusic.initialize();
+      const songDetails = await ytmusic.getSong(id);
+      if (songDetails && songDetails.name) {
+        videoTitle = songDetails.name;
+        videoArtist = songDetails.artist?.name || '';
+      }
     }
 
-    // 2. Fallback to JioSaavn if ytdl-core fails
+    // Step 2: Try to find and redirect to JioSaavn (Fast, reliable, no IP bind)
     if (videoTitle) {
       try {
         const { searchSongs } = await import('@/lib/api/jiosaavn');
         const query = `${videoTitle} ${videoArtist}`.trim();
         const jioResults = await searchSongs(query, 1);
         if (jioResults && jioResults.length > 0 && jioResults[0].audio_url) {
-          console.log('JioSaavn fallback successful for:', query);
+          console.log('Stream matched on JioSaavn:', query);
           return NextResponse.redirect(jioResults[0].audio_url);
         }
-      } catch (fallbackErr) {
-        console.warn('JioSaavn fallback failed:', fallbackErr);
+      } catch (jioErr) {
+        console.warn('JioSaavn search failed:', jioErr);
       }
     }
 
-    // 3. If we don't have the title (ytdl failed entirely), we can try to fetch title using ytmusic-api
-    if (!videoTitle) {
-       try {
-         const YTMusic = (await import('ytmusic-api')).default;
-         const ytmusic = new YTMusic();
-         await ytmusic.initialize();
-         const songDetails = await ytmusic.getSong(id);
-         if (songDetails && songDetails.name) {
-           const { searchSongs } = await import('@/lib/api/jiosaavn');
-           const query = `${songDetails.name} ${songDetails.artist?.name || ''}`.trim();
-           const jioResults = await searchSongs(query, 1);
-           if (jioResults && jioResults.length > 0 && jioResults[0].audio_url) {
-             console.log('JioSaavn fallback (via ytmusic-api) successful for:', query);
-             return NextResponse.redirect(jioResults[0].audio_url);
-           }
-         }
-       } catch (fallbackErr2) {
-         console.warn('JioSaavn fallback via ytmusic failed:', fallbackErr2);
-       }
+    // Step 3: If JioSaavn fails (e.g., obscure YouTube cover), fallback to proxying YouTube
+    console.log('Falling back to YouTube proxy for:', id);
+    try {
+      const info = await ytdl.getInfo(id);
+      let format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
+      if (!format || !format.url) format = ytdl.chooseFormat(info.formats, { filter: 'audio' }) || format;
+      if (!format || !format.url) format = info.formats[0];
+
+      if (format && format.url) {
+        // Proxy the stream so the client doesn't get a 403 IP-Mismatch error from YouTube
+        const proxyRes = await fetch(format.url);
+        return new NextResponse(proxyRes.body, {
+          headers: {
+            'Content-Type': format.mimeType || 'audio/mp4',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+    } catch (ytErr) {
+      console.error('YouTube proxy failed:', ytErr);
     }
 
     return NextResponse.json({ error: 'No streamable format found across all providers' }, { status: 404 });
