@@ -56,7 +56,7 @@ export async function GET(request: Request) {
          const songDetails = await ytmusic.getSong(id);
          if (songDetails && songDetails.name) {
            const { searchSongs } = await import('@/lib/api/jiosaavn');
-           const query = `${songDetails.name} ${songDetails.artists?.[0]?.name || ''}`.trim();
+           const query = `${songDetails.name} ${songDetails.artist?.name || ''}`.trim();
            const jioResults = await searchSongs(query, 1);
            if (jioResults && jioResults.length > 0 && jioResults[0].audio_url) {
              console.log('JioSaavn fallback (via ytmusic-api) successful for:', query);
