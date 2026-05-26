@@ -25,20 +25,16 @@ export default function PlaylistPage() {
   }, [id]);
 
   const loadPlaylist = async () => {
-    const { data: pl } = await supabase
-      .from('playlists')
-      .select('*, owner:profiles(display_name, avatar_url)')
-      .eq('id', id)
-      .single();
-
-    if (pl) {
-      setPlaylist(pl as Playlist);
-      const { data: ps } = await supabase
-        .from('playlist_songs')
-        .select('*, song:songs(*, artist:artists(*), album:albums(*))')
-        .eq('playlist_id', id)
-        .order('position');
-      setSongs((ps?.map((r: any) => r.song) ?? []) as Song[]);
+    try {
+      const res = await fetch(`/api/playlist?id=${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error('Failed to load playlist');
+      
+      const data = await res.json();
+      setPlaylist(data.playlist);
+      setSongs(data.songs || []);
+    } catch (e) {
+      console.error(e);
+      setPlaylist(null);
     }
     setLoading(false);
   };

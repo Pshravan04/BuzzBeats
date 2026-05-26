@@ -22,31 +22,17 @@ export default function ArtistPage() {
   }, [id]);
 
   const loadArtist = async () => {
-    const { data: artistData } = await supabase
-      .from('artists')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (artistData) {
-      setArtist(artistData as Artist);
+    try {
+      const res = await fetch(`/api/artist?id=${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error('Failed to load artist');
       
-      const [songsData, albumsData] = await Promise.all([
-        supabase
-          .from('songs')
-          .select('*, artist:artists(*), album:albums(*)')
-          .eq('artist_id', id)
-          .order('play_count', { ascending: false })
-          .limit(5),
-        supabase
-          .from('albums')
-          .select('*, artist:artists(*)')
-          .eq('artist_id', id)
-          .order('release_date', { ascending: false })
-      ]);
-
-      setTopSongs((songsData.data ?? []) as Song[]);
-      setAlbums((albumsData.data ?? []) as Album[]);
+      const data = await res.json();
+      setArtist(data.artist);
+      setTopSongs(data.songs || []);
+      setAlbums(data.albums || []);
+    } catch (e) {
+      console.error(e);
+      setArtist(null);
     }
     setLoading(false);
   };

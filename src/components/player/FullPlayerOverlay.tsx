@@ -50,15 +50,30 @@ export function FullPlayerOverlay() {
     }
   };
 
-  const handleDownload = () => {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller && currentSong) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'DOWNLOAD_AUDIO',
-        url: currentSong.audio_url
-      });
-      alert(`Downloading "${currentSong.title}" for offline playback...`);
-    } else {
-      alert("Offline downloads are not supported on this browser.");
+  const handleDownload = async () => {
+    if (!currentSong) return;
+    try {
+      alert(`Downloading "${currentSong.title}"... Please wait.`);
+      // Fetch the audio stream
+      const response = await fetch(currentSong.audio_url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      
+      // Create object URL and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${currentSong.title} - ${currentSong.artist?.name || 'Unknown'}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download the song. Please try again.');
     }
   };
 

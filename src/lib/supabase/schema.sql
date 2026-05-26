@@ -398,3 +398,13 @@ insert into public.songs (id, title, artist_id, album_id, duration, audio_url, c
   ('c1000000-0000-0000-0000-000000000008', 'Midnight Drive', 'a1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 203, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', '/images/albums/midnight-bloom.jpg', 'Verse 1:\nWindows down at 2am\nHoping this road never ends\nHeadlights cut through velvet dark\nJust us, the night, and beating hearts', 3),
   ('c1000000-0000-0000-0000-000000000009', 'Synthwave Sunrise', 'a1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000002', 267, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', '/images/albums/digital-horizon.jpg', 'Instrumental track featuring lush synthesizers and driving drums.', 3),
   ('c1000000-0000-0000-0000-000000000010', 'River Road', 'a1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000003', 241, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', '/images/albums/wilderness.jpg', 'Verse 1:\nI followed the river south and west\nLooking for some well-deserved rest\nThe stones and water told their tales\nOf those who walked these winding trails', 2);
+
+-- ================================================
+-- STORAGE BUCKETS
+-- ================================================
+insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true) on conflict do nothing;
+
+create policy "Avatars are publicly accessible" on storage.objects for select using (bucket_id = 'avatars');
+create policy "Users can upload avatars" on storage.objects for insert with check (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+create policy "Users can update avatars" on storage.objects for update using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+create policy "Users can delete avatars" on storage.objects for delete using (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);

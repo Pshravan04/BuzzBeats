@@ -2,19 +2,21 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { usePlayer } from '@/context/PlayerContext';
-import type { Song } from '@/types';
+import Link from 'next/link';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState<'SONG' | 'ARTIST' | 'PLAYLIST'>('SONG');
+  
   const player = usePlayer();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const search = useCallback(async (q: string) => {
+  const search = useCallback(async (q: string, type: string) => {
     if (!q.trim()) {
-      setSongs([]);
+      setResults([]);
       setHasSearched(false);
       return;
     }
@@ -22,13 +24,13 @@ export default function SearchPage() {
     setHasSearched(true);
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=30`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&type=${type}`);
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
-      setSongs(data.results || []);
+      setResults(data.results || []);
     } catch (e) {
       console.error(e);
-      setSongs([]);
+      setResults([]);
     } finally {
       setLoading(false);
     }
@@ -36,20 +38,15 @@ export default function SearchPage() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(query), 500);
+    debounceRef.current = setTimeout(() => search(query, activeTab), 500);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [query, search]);
+  }, [query, activeTab, search]);
 
-  const BROWSE_CATEGORIES = [
-    { label: 'Electronic', color: '#27856A' },
-    { label: 'Indie', color: '#1E3264' },
-    { label: 'Lo-Fi', color: '#8D67AB' },
-    { label: 'Hip Hop', color: '#E8115B' },
-    { label: 'Ambient', color: '#509BF5' },
-    { label: 'Rock', color: '#E13300' },
-    { label: 'Pop Hits', color: '#148A08' },
-    { label: 'Jazz', color: '#7358FF' },
-  ];
+  const TABS = [
+    { key: 'SONG', label: 'Songs' },
+    { key: 'ARTIST', label: 'Artists' },
+    { key: 'PLAYLIST', label: 'Playlists' }
+  ] as const;
 
   return (
     <div className="page-container" style={{ minHeight: '100%', paddingBottom: 100 }}>
@@ -59,7 +56,6 @@ export default function SearchPage() {
         padding: '24px 0px 16px',
         background: 'var(--bg-base)',
       }}>
-        {/* Search input */}
         <div style={{ position: 'relative', maxWidth: 640 }}>
           <span style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none', display: 'flex' }}>
             <SearchIcon size={20} />
@@ -72,7 +68,6 @@ export default function SearchPage() {
             onChange={e => setQuery(e.target.value)}
             autoComplete="off"
             aria-label="Search music"
-            id="search-input"
             style={{ 
               paddingLeft: 56, fontSize: '16px', height: 48, 
               background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)',
@@ -92,41 +87,62 @@ export default function SearchPage() {
             <button
               onClick={() => setQuery('')}
               style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', display: 'flex', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
-              aria-label="Clear search"
             >
               <CloseIcon size={20} />
             </button>
           )}
         </div>
+        
+        {/* Tabs */}
+        {query && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            {TABS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 'var(--radius-full)',
+                  background: activeTab === key ? 'var(--text-primary)' : 'var(--bg-elevated)',
+                  color: activeTab === key ? 'var(--bg-base)' : 'var(--text-primary)',
+                  border: 'none',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="page-container" style={{ paddingTop: 24 }}>
-        {/* Loading */}
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
             <div className="spinner" style={{ width: 40, height: 40, borderWidth: 4 }} />
           </div>
         )}
 
-        {/* Search Results */}
         {hasSearched && !loading && (
           <>
-            {songs.length === 0 && (
+            {results.length === 0 && (
               <div style={{ textAlign: 'center', padding: '80px 20px' }}>
                 <div style={{ fontSize: 80, marginBottom: 24 }}>🔍</div>
-                <h2 style={{ marginBottom: 12, fontSize: 'var(--text-2xl)', fontWeight: 800 }}>No tracks found for "{query}"</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-lg)' }}>Check spelling or try a different song name.</p>
+                <h2 style={{ marginBottom: 12, fontSize: 'var(--text-2xl)', fontWeight: 800 }}>No results found for "{query}"</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-lg)' }}>Check spelling or try a different keyword.</p>
               </div>
             )}
 
-            {songs.length > 0 && (
+            {results.length > 0 && activeTab === 'SONG' && (
               <section>
-                <h2 style={{ marginBottom: 24, fontSize: 'var(--text-xl)', fontWeight: 800 }}>Top Results</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-                  {songs.map((song, idx) => (
+                  {results.map((song) => (
                     <div
                       key={song.id}
-                      onClick={() => player.play(song, songs)}
+                      onClick={() => player.play(song, results)}
                       className="song-row"
                       style={{ 
                         background: 'rgba(255,255,255,0.05)', borderRadius: 8, height: 64,
@@ -135,17 +151,13 @@ export default function SearchPage() {
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                        const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                        if(playBtn) { playBtn.style.opacity = '1'; playBtn.style.transform = 'scale(1)'; }
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        const playBtn = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                        if(playBtn) { playBtn.style.opacity = '0'; playBtn.style.transform = 'scale(0.8)'; }
                       }}
                     >
                       <div style={{ width: 64, height: 64, flexShrink: 0, position: 'relative' }}>
-                        <img src={song.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+                        <img src={song.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                       
                       <div style={{ minWidth: 0, flex: 1, padding: '0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -153,10 +165,10 @@ export default function SearchPage() {
                         <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{song.artist?.name}</div>
                       </div>
 
-                      <div className="play-btn" style={{
+                      <div style={{
                         marginRight: 16, width: 40, height: 40, borderRadius: '50%',
                         background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'black', opacity: 0, transform: 'scale(0.8)', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', flexShrink: 0
+                        color: 'black', flexShrink: 0
                       }}>
                         <PlayButton size={20} />
                       </div>
@@ -165,56 +177,59 @@ export default function SearchPage() {
                 </div>
               </section>
             )}
+
+            {results.length > 0 && activeTab === 'ARTIST' && (
+              <section>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 24 }}>
+                  {results.map((artist) => (
+                    <Link href={`/artist/${artist.id}`} key={artist.id} style={{ textDecoration: 'none' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+                        <div style={{ 
+                          width: '100%', aspectRatio: '1/1', borderRadius: '50%', overflow: 'hidden', marginBottom: 12,
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.3)', background: 'var(--bg-elevated)'
+                        }}>
+                          <img src={artist.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: 16, textAlign: 'center', color: 'var(--text-primary)' }}>{artist.name}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 4 }}>Artist</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {results.length > 0 && activeTab === 'PLAYLIST' && (
+              <section>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 20 }}>
+                  {results.map((playlist) => (
+                    <Link href={`/playlist/${playlist.id}`} key={playlist.id} style={{ textDecoration: 'none' }}>
+                      <div style={{ 
+                        background: 'var(--bg-elevated)', borderRadius: 12, padding: 16, cursor: 'pointer',
+                        transition: 'background 0.2s', height: '100%'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+                      >
+                        <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, overflow: 'hidden', marginBottom: 16, boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+                          <img src={playlist.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div className="truncate" style={{ fontWeight: 700, fontSize: 16, marginBottom: 4, color: 'var(--text-primary)' }}>{playlist.name}</div>
+                        <div className="truncate" style={{ color: 'var(--text-secondary)', fontSize: 14 }}>By {playlist.owner?.display_name}</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
 
-        {/* Browse Categories (shown when no search) */}
         {!hasSearched && (
-          <>
-            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 24, letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>Browse Categories</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 20 }}>
-              {BROWSE_CATEGORIES.map(({ label, color }) => (
-                <button
-                  key={label}
-                  onClick={() => setQuery(label)}
-                  style={{
-                    backgroundColor: color,
-                    borderRadius: '8px',
-                    padding: '20px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    position: 'relative', overflow: 'hidden',
-                    transition: 'all 0.2s ease',
-                    border: 'none',
-                    aspectRatio: '1 / 1',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.filter = 'brightness(1.1)';
-                    const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                    if(play) { play.style.opacity = '1'; play.style.transform = 'scale(1)'; }
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.filter = 'brightness(1)';
-                    const play = e.currentTarget.querySelector('.play-btn') as HTMLElement;
-                    if(play) { play.style.opacity = '0'; play.style.transform = 'scale(0.8)'; }
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: 'white', fontSize: '18px', fontFamily: 'var(--font-display)', position: 'relative', zIndex: 2 }}>{label}</div>
-                  
-                  <div className="play-btn" style={{
-                    opacity: 0, transform: 'scale(0.8)', position: 'absolute', bottom: 16, right: 16,
-                    background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                    padding: 8, borderRadius: '50%', transition: 'all 0.2s ease', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <PlayButton size={18} />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </>
+          <div style={{ textAlign: 'center', padding: '100px 20px', opacity: 0.5 }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800 }}>Start Typing</h2>
+            <p style={{ marginTop: 8 }}>Search for your favorite songs, artists, and playlists globally.</p>
+          </div>
         )}
       </div>
     </div>

@@ -19,6 +19,9 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
   const player = usePlayer();
   const [activeChip, setActiveChip] = useState<string | null>(null);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : hour < 22 ? 'Good evening' : 'Good night';
+
   return (
     <div className="page-container" style={{ minHeight: '100%', paddingBottom: 120, position: 'relative' }}>
       
@@ -29,12 +32,16 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
           <button className="btn btn-ghost btn-icon-sm" style={{ background: 'var(--bg-elevated)', color: 'white', opacity: 0.5, borderRadius: '50%' }}><ChevronRightIcon size={24} /></button>
         </div>
         <div className="mobile-only">
-          <h2 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>Good evening</h2>
+          <h2 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>{greeting}</h2>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }}>
           <Link href="/settings">
-            <button style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', border: 'none', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: 14 }}>
-              {user?.display_name?.[0]?.toUpperCase() ?? 'U'}
+            <button style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent)', border: 'none', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: 14, overflow: 'hidden' }}>
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.display_name?.[0]?.toUpperCase() ?? 'U'
+              )}
             </button>
           </Link>
         </div>
@@ -76,23 +83,23 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
         })}
       </div>
 
-      {/* Greetings / Top Mixes (6 card layout) */}
+      {/* Greetings / Recently Played */}
       <section style={{ marginBottom: 40, position: 'relative', zIndex: 1 }}>
         <h2 style={{ fontSize: '28px', fontWeight: 800, fontFamily: 'var(--font-display)', margin: '0 0 24px 0' }}>
-          Good evening
+          {greeting}
         </h2>
         
         <div className="greeting-grid">
-          {['Liked Songs', 'Daily Mix 1', 'Release Radar', 'Discover Weekly', 'On Repeat', 'Top Hits'].map((title, i) => (
-            <div key={title} className="song-row" style={{
+          {popularHits.slice(0, 6).map((song, i) => (
+            <div key={song.id || i} className="song-row" onClick={() => player.play(song, popularHits)} style={{
               background: 'rgba(255,255,255,0.05)', borderRadius: 4, height: 64,
               display: 'flex', alignItems: 'center', cursor: 'pointer', overflow: 'hidden',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)', position: 'relative'
             }}>
               <div style={{ width: 64, height: 64, background: `hsl(${i * 60}, 70%, 50%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <HeartOutlineIcon size={24} color="white" />
+                <img src={song.cover_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
               </div>
-              <span style={{ fontWeight: 700, fontSize: 15, marginLeft: 16 }}>{title}</span>
+              <span className="truncate" style={{ fontWeight: 700, fontSize: 15, marginLeft: 16, flex: 1, paddingRight: 16 }}>{song.title}</span>
               <div className="play-button" style={{
                 position: 'absolute', right: 16, width: 48, height: 48, borderRadius: '50%',
                 background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',

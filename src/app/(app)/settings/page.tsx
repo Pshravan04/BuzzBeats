@@ -91,11 +91,46 @@ export default function SettingsPage() {
               <>
                 {/* Avatar */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div className="avatar-placeholder" style={{ width: 80, height: 80, fontSize: 32, background: 'var(--accent)', color: 'black' }}>
-                    {user.display_name?.[0]?.toUpperCase()}
+                  <div className="avatar-placeholder" style={{ width: 80, height: 80, fontSize: 32, background: 'var(--accent)', color: 'black', overflow: 'hidden' }}>
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      user.display_name?.[0]?.toUpperCase()
+                    )}
                   </div>
                   <div>
-                    <button className="btn btn-secondary btn-sm">Change Photo</button>
+                    <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                      Change Photo
+                      <input 
+                        type="file" 
+                        accept="image/png, image/jpeg, image/jpg" 
+                        style={{ display: 'none' }} 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert('File must be less than 5MB');
+                            return;
+                          }
+                          setSaving(true);
+                          const fileExt = file.name.split('.').pop();
+                          const filePath = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+                          
+                          const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+                          if (uploadError) {
+                            alert('Error uploading avatar');
+                            setSaving(false);
+                            return;
+                          }
+                          
+                          const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+                          await updateProfile({ avatar_url: publicUrl });
+                          setSaveMsg('Avatar updated!');
+                          setTimeout(() => setSaveMsg(''), 2000);
+                          setSaving(false);
+                        }}
+                      />
+                    </label>
                     <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginTop: 4 }}>JPG, PNG up to 5MB</p>
                   </div>
                 </div>
