@@ -15,13 +15,8 @@ export async function GET(request: Request) {
     let videoTitle = '';
     let videoArtist = '';
 
-    // Step 1: Get Basic Info quickly to find Title and Artist
+    // Step 1: Get Basic Info quickly to find Title and Artist using ytmusic-api for a clean title
     try {
-      const basicInfo = await ytdl.getBasicInfo(id);
-      videoTitle = basicInfo.videoDetails.title;
-      videoArtist = basicInfo.videoDetails.author.name;
-    } catch (err) {
-      console.warn('ytdl getBasicInfo failed, using ytmusic-api...', err);
       const YTMusic = (await import('ytmusic-api')).default;
       const ytmusic = new YTMusic();
       await ytmusic.initialize();
@@ -29,6 +24,15 @@ export async function GET(request: Request) {
       if (songDetails && songDetails.name) {
         videoTitle = songDetails.name;
         videoArtist = songDetails.artist?.name || '';
+      }
+    } catch (err) {
+      console.warn('ytmusic-api failed, falling back to ytdl for title...', err);
+      try {
+        const basicInfo = await ytdl.getBasicInfo(id);
+        videoTitle = basicInfo.videoDetails.title;
+        videoArtist = basicInfo.videoDetails.author.name;
+      } catch (ytdlErr) {
+        console.warn('ytdl getBasicInfo also failed');
       }
     }
 
@@ -58,6 +62,9 @@ export async function GET(request: Request) {
       if (format && format.url) {
         // Proxy the stream so the client doesn't get a 403 IP-Mismatch error from YouTube
         const proxyRes = await fetch(format.url);
+        if (!proxyRes.ok) {
+           throw new Error(`YouTube returned status ${proxyRes.status}`);
+        }
         return new NextResponse(proxyRes.body, {
           headers: {
             'Content-Type': format.mimeType || 'audio/mp4',
