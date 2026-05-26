@@ -35,7 +35,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
+    // Removed crossOrigin='anonymous' to allow playing redirected GoogleVideo URLs without CORS errors
     audio.preload = 'metadata';
     audioRef.current = audio;
 

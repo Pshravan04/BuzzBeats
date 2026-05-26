@@ -26,7 +26,7 @@ export async function GET(request: Request) {
           album_id: item.album?.albumId || '',
           album: item.album ? { title: item.album.name, cover_url: item.thumbnails?.[item.thumbnails.length - 1]?.url } : undefined,
           duration: item.duration || 0,
-          audio_url: `https://youtube.com/watch?v=${item.videoId}`, // Frontend must handle this
+          audio_url: `/api/stream?id=${item.videoId}`,
           cover_url: item.thumbnails?.[item.thumbnails.length - 1]?.url || '/images/default-album.jpg',
           play_count: 0,
           resultType: 'song'
