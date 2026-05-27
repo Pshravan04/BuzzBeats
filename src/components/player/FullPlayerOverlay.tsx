@@ -138,7 +138,7 @@ export function FullPlayerOverlay() {
       }}>
         {/* Left/Top: Artwork & Controls */}
         <div style={{
-          flex: '1 1 400px',
+          flex: '1 1 100%',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           maxWidth: '500px', margin: '0 auto'
@@ -217,7 +217,7 @@ export function FullPlayerOverlay() {
 
         {/* Right/Bottom: Lyrics */}
         <div style={{
-          flex: '1 1 400px',
+          flex: '1 1 100%',
           display: 'flex', flexDirection: 'column',
           justifyContent: 'center',
           maxHeight: '100%',

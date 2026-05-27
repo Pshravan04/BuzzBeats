@@ -6,26 +6,29 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
+  const queryTitle = searchParams.get('title');
+  const queryArtist = searchParams.get('artist');
 
   if (!id) {
     return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
   }
 
   try {
-    let videoTitle = '';
-    let videoArtist = '';
+    let videoTitle = queryTitle || '';
+    let videoArtist = queryArtist || '';
 
     // Step 1: Get Basic Info quickly to find Title and Artist using ytmusic-api for a clean title
-    try {
-      const YTMusic = (await import('ytmusic-api')).default;
-      const ytmusic = new YTMusic();
-      await ytmusic.initialize();
-      const songDetails = await ytmusic.getSong(id);
-      if (songDetails && songDetails.name) {
-        videoTitle = songDetails.name;
-        videoArtist = songDetails.artist?.name || '';
-      }
-    } catch (err) {
+    if (!videoTitle) {
+      try {
+        const YTMusic = (await import('ytmusic-api')).default;
+        const ytmusic = new YTMusic();
+        await ytmusic.initialize();
+        const songDetails = await ytmusic.getSong(id);
+        if (songDetails && songDetails.name) {
+          videoTitle = songDetails.name;
+          videoArtist = songDetails.artist?.name || '';
+        }
+      } catch (err) {
       console.warn('ytmusic-api failed, falling back to ytdl for title...', err);
       try {
         const basicInfo = await ytdl.getBasicInfo(id);
@@ -35,6 +38,7 @@ export async function GET(request: Request) {
         console.warn('ytdl getBasicInfo also failed');
       }
     }
+  }
 
     // Step 2: Try to find and redirect to JioSaavn (Fast, reliable, no IP bind)
     if (videoTitle) {
