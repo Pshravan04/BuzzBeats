@@ -35,8 +35,8 @@ export async function POST(request: Request) {
     const ytmusic = new YTMusic();
     await ytmusic.initialize();
     
-    const playlistDetails = (await ytmusic.getPlaylist(bestMatch.playlistId)) as any;
-    if (!playlistDetails || !playlistDetails.videos || playlistDetails.videos.length === 0) {
+    const playlistVideos = (await ytmusic.getPlaylistVideos(bestMatch.playlistId)) as any[];
+    if (!playlistVideos || playlistVideos.length === 0) {
       return NextResponse.json({ error: 'The matched playlist has no songs' }, { status: 404 });
     }
 
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         name: playlistTitle,
         owner_id: userData.user.id,
         cover_url: coverUrl,
-        song_count: playlistDetails.videos.length
+        song_count: playlistVideos.length
       })
       .select()
       .single();
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
     // 4. Map the YouTube songs into our DB format
     // For simplicity and speed, we will insert songs concurrently if they don't exist
-    const songsToInsert = playlistDetails.videos.map((vid: any) => ({
+    const songsToInsert = playlistVideos.map((vid: any) => ({
       id: vid.videoId,
       title: vid.name,
       artist_id: vid.artists?.[0]?.artistId || null,
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     }));
 
     // Upsert artists first to satisfy foreign key constraints
-    const artistsToInsert = playlistDetails.videos
+    const artistsToInsert = playlistVideos
       .map((vid: any) => {
         if (!vid.artists?.[0]?.artistId) return null;
         return {

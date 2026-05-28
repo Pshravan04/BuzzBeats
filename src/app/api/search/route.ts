@@ -16,20 +16,22 @@ export async function GET(request: Request) {
     let mappedResults: any[] = [];
 
     if (type === 'SONG' || !type) {
-      const { searchSongs } = await import('@/lib/api/jiosaavn');
-      const jioResults = await searchSongs(q, 15);
-      
-      mappedResults = jioResults.map(song => ({
-        id: song.id,
-        title: song.title,
-        artist_id: song.artist_id,
-        artist: song.artist,
-        album_id: song.album_id,
-        album: song.album,
+      const rawSongs = await searchYT(q, 'SONG');
+      mappedResults = rawSongs.map((song: any) => ({
+        id: song.videoId,
+        title: song.name,
+        artist_id: song.artists?.[0]?.artistId || null,
+        artist: {
+          name: song.artists?.[0]?.name || 'Unknown',
+        },
+        album_id: song.album?.albumId || null,
+        album: {
+          title: song.album?.name || '',
+        },
         duration: song.duration,
-        audio_url: song.audio_url || `/api/stream?id=${song.id}&title=${encodeURIComponent(song.title)}&artist=${encodeURIComponent(song.artist?.name || '')}`,
-        cover_url: song.cover_url,
-        play_count: song.play_count,
+        audio_url: `/api/stream?id=${song.videoId}&title=${encodeURIComponent(song.name)}&artist=${encodeURIComponent(song.artists?.[0]?.name || '')}`,
+        cover_url: song.thumbnails?.[song.thumbnails.length - 1]?.url || '/images/default-album.jpg',
+        play_count: 0,
         resultType: 'song'
       }));
     }
