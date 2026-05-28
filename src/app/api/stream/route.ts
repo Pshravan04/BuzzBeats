@@ -45,10 +45,18 @@ export async function GET(request: Request) {
       try {
         const { searchSongs } = await import('@/lib/api/jiosaavn');
         const query = `${videoTitle} ${videoArtist}`.trim();
-        const jioResults = await searchSongs(query, 1);
-        if (jioResults && jioResults.length > 0 && jioResults[0].audio_url) {
-          console.log('Stream matched on JioSaavn:', query);
-          return NextResponse.redirect(jioResults[0].audio_url);
+        const jioResults = await searchSongs(query, 5);
+        if (jioResults && jioResults.length > 0) {
+          // Find the best match
+          const bestJioMatch = jioResults.find(r => 
+            r.title.toLowerCase() === videoTitle.toLowerCase() || 
+            r.title.toLowerCase().includes(videoTitle.toLowerCase())
+          ) || jioResults[0];
+
+          if (bestJioMatch && bestJioMatch.audio_url) {
+            console.log('Stream matched on JioSaavn:', query, '->', bestJioMatch.title);
+            return NextResponse.redirect(bestJioMatch.audio_url);
+          }
         }
       } catch (jioErr) {
         console.warn('JioSaavn search failed:', jioErr);

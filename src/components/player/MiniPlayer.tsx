@@ -217,16 +217,19 @@ export function MobileMiniPlayer() {
       className="mobile-only"
       style={{
         position: 'fixed',
-        bottom: 'calc(65px + env(safe-area-inset-bottom))',
-        left: 0, right: 0,
+        bottom: 'calc(75px + env(safe-area-inset-bottom))',
+        left: 8, right: 8,
         zIndex: 120,
       }}
     >
       <div onClick={() => player.setFullPlayerOpen(true)} style={{
-        background: '#0f0f0f',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        background: 'rgba(25, 25, 25, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: 8,
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         overflow: 'hidden',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
       }}>
         {/* Progress Line */}
         <div style={{ height: 2, background: 'rgba(255,255,255,0.12)' }}>

@@ -104,11 +104,11 @@ export default function LibraryPage() {
   }
 
   return (
-    <div style={{ minHeight: '100%', paddingBottom: 120 }}>
+    <div className="page-container" style={{ minHeight: '100%', paddingBottom: 120 }}>
       {/* Header Area */}
-      <div style={{ padding: '40px 40px 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
+      <div style={{ paddingBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 6vw, 36px)', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
             Your Library
           </h1>
           <div style={{ display: 'flex', gap: 16 }}>
@@ -235,7 +235,7 @@ export default function LibraryPage() {
       )}
 
       {/* Content */}
-      <div style={{ padding: '0 40px' }}>
+      <div>
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
             <div className="spinner" />

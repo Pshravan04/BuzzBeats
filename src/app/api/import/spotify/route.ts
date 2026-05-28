@@ -74,8 +74,27 @@ export async function POST(request: Request) {
       audio_url: `/api/stream?id=${vid.videoId}&title=${encodeURIComponent(vid.name)}&artist=${encodeURIComponent(vid.artists?.[0]?.name || '')}`,
     }));
 
+    // Upsert artists first to satisfy foreign key constraints
+    const artistsToInsert = playlistDetails.videos
+      .map((vid: any) => {
+        if (!vid.artists?.[0]?.artistId) return null;
+        return {
+          id: vid.artists[0].artistId,
+          name: vid.artists[0].name || 'Unknown',
+        };
+      })
+      .filter(Boolean)
+      .filter((v: any, i: number, a: any[]) => a.findIndex((t: any) => (t.id === v.id)) === i); // Unique artists
+
+    if (artistsToInsert.length > 0) {
+      await supabase.from('artists').upsert(artistsToInsert, { onConflict: 'id', ignoreDuplicates: true });
+    }
+
     // Upsert songs
-    await supabase.from('songs').upsert(songsToInsert, { onConflict: 'id', ignoreDuplicates: true });
+    const { error: songsErr } = await supabase.from('songs').upsert(songsToInsert, { onConflict: 'id', ignoreDuplicates: true });
+    if (songsErr) {
+      console.error('Songs insert error:', songsErr);
+    }
 
     // Link songs to playlist
     const playlistSongs = songsToInsert.map((song: any, idx: number) => ({
@@ -84,7 +103,10 @@ export async function POST(request: Request) {
       position: idx
     }));
 
-    await supabase.from('playlist_songs').insert(playlistSongs);
+    const { error: plSongsErr } = await supabase.from('playlist_songs').insert(playlistSongs);
+    if (plSongsErr) {
+      console.error('Playlist songs insert error:', plSongsErr);
+    }
 
     return NextResponse.json({ success: true, playlist: newPlaylist });
   } catch (err: any) {

@@ -150,6 +150,7 @@ export function MobileNav() {
       {[
         { href: '/', label: 'Home', icon: HomeIcon },
         { href: '/search', label: 'Search', icon: SearchIcon },
+        { href: '/room/create', label: 'Collab', icon: UsersIcon },
         { href: '/library', label: 'Library', icon: LibraryIcon },
         { href: '/settings', label: 'Profile', icon: UserIcon },
       ].map(({ href, label, icon: Icon }) => {

@@ -17,12 +17,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const result = await signIn(email, password);
-    if (result.error) {
-      setError(result.error);
+    try {
+      const result = await signIn(email, password);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        router.push('/');
+        router.refresh();
+      }
+    } catch (e: any) {
+      setError(e.message || 'An unexpected error occurred');
       setLoading(false);
-    } else {
-      window.location.href = '/';
     }
   };
 

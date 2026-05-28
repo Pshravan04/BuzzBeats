@@ -132,8 +132,8 @@ export function FullPlayerOverlay() {
       <div style={{
         position: 'relative', zIndex: 1,
         flex: 1, display: 'flex', flexWrap: 'wrap',
-        padding: '0 32px 32px',
-        gap: 40,
+        padding: '0 clamp(16px, 5vw, 32px) clamp(16px, 5vw, 32px)',
+        gap: 'clamp(20px, 5vw, 40px)',
         overflowY: 'auto'
       }}>
         {/* Left/Top: Artwork & Controls */}
