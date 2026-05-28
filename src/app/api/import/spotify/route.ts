@@ -83,7 +83,7 @@ export async function POST(request: Request) {
           name: vid.artists[0].name || 'Unknown',
         };
       })
-      .filter(Boolean)
+      .filter((v: any): v is {id: string, name: string} => Boolean(v))
       .filter((v: any, i: number, a: any[]) => a.findIndex((t: any) => (t.id === v.id)) === i); // Unique artists
 
     if (artistsToInsert.length > 0) {
