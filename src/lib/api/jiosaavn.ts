@@ -177,3 +177,39 @@ export async function getSongDetails(id: string): Promise<Song | null> {
     return null;
   }
 }
+
+export async function searchPlaylists(query: string, limit = 20): Promise<any[]> {
+  try {
+    const searchUrl = `${JIOSAAVN_API}?__call=search.getPlaylistResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(searchUrl, { headers: FETCH_HEADERS });
+    const json = await res.json();
+    return json.results || [];
+  } catch (error) {
+    console.error('Error searching playlists:', error);
+    return [];
+  }
+}
+
+export async function searchArtists(query: string, limit = 20): Promise<any[]> {
+  try {
+    const searchUrl = `${JIOSAAVN_API}?__call=search.getArtistResults&q=${encodeURIComponent(query)}&n=${limit}&p=1&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(searchUrl, { headers: FETCH_HEADERS });
+    const json = await res.json();
+    return json.results || [];
+  } catch (error) {
+    console.error('Error searching artists:', error);
+    return [];
+  }
+}
+
+export async function getPlaylistDetails(id: string): Promise<any> {
+  try {
+    const detailsUrl = `${JIOSAAVN_API}?__call=playlist.getDetails&listid=${id}&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(detailsUrl, { headers: FETCH_HEADERS });
+    const json = await res.json();
+    return json;
+  } catch (error) {
+    console.error('Error fetching playlist details:', error);
+    return null;
+  }
+}

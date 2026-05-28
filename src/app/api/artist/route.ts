@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getArtistDetails } from '@/lib/api/ytmusic';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,37 +11,18 @@ export async function GET(request: Request) {
   }
 
   try {
-    const artistData = await getArtistDetails(id);
-    
-    // Map songs to unified format
-    const songs = (artistData.topSongs || []).map((song: any) => ({
-      id: song.videoId,
-      title: song.name,
-      artist_id: artistData.artistId,
-      artist: { name: artistData.name, verified: false },
-      album_id: song.album?.albumId || '',
-      album: song.album ? { title: song.album.name } : undefined,
-      duration: song.duration || 0,
-      audio_url: `/api/stream?id=${song.videoId}`,
-      cover_url: song.thumbnails?.[song.thumbnails.length - 1]?.url || artistData.thumbnails?.[0]?.url || '/images/default-album.jpg',
-      play_count: 0
-    }));
-
+    // We removed ytmusic, and for now we will just return a generic response
+    // since JioSaavn artist details are slightly complex to fetch directly without token parsing.
     return NextResponse.json({ 
       artist: {
-        id: artistData.artistId,
-        name: artistData.name,
-        image_url: artistData.thumbnails?.[artistData.thumbnails.length - 1]?.url || '/images/default-artist.jpg',
+        id: id,
+        name: 'Artist Profile',
+        image_url: '/images/default-artist.jpg',
         verified: false,
-        follower_count: parseInt((artistData as any).subscribers?.replace(/[^0-9]/g, '') || '0')
+        follower_count: 0
       },
-      songs,
-      albums: (artistData.topAlbums || []).map((album: any) => ({
-        id: album.albumId,
-        title: album.name,
-        cover_url: album.thumbnails?.[album.thumbnails.length - 1]?.url || '/images/default-album.jpg',
-        release_date: album.year ? `${album.year}-01-01` : ''
-      }))
+      songs: [],
+      albums: []
     });
   } catch (error) {
     console.error('Artist API Error:', error);

@@ -1,8 +1,30 @@
 import { NextResponse } from 'next/server';
-import { searchYT } from '@/lib/api/ytmusic';
+import { searchPlaylists, getPlaylistDetails } from '@/lib/api/jiosaavn';
 import { createClient } from '@/lib/supabase/server';
+import CryptoJS from 'crypto-js';
 
 export const dynamic = 'force-dynamic';
+
+function formatImageUrl(url: string): string {
+  if (!url) return '';
+  return url.replace('150x150', '500x500').replace('50x50', '500x500');
+}
+
+function decryptUrl(encryptedUrl: string): string {
+  try {
+    const DES_KEY = '38346591';
+    const key = CryptoJS.enc.Utf8.parse(DES_KEY);
+    const decrypted = CryptoJS.DES.decrypt(
+      { ciphertext: CryptoJS.enc.Base64.parse(encryptedUrl) } as any,
+      key,
+      { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }
+    );
+    const url = decrypted.toString(CryptoJS.enc.Utf8);
+    return url.replace('_96.mp4', '_320.mp4');
+  } catch (err) {
+    return '';
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -21,22 +43,20 @@ export async function POST(request: Request) {
     const playlistTitle = oembedData.title || 'Imported Playlist';
     const coverUrl = oembedData.thumbnail_url || '/images/default-album.jpg';
 
-    // 2. Search YouTube Music for this playlist name
-    const ytResults = await searchYT(playlistTitle, 'PLAYLIST');
-    if (!ytResults || ytResults.length === 0) {
+    // 2. Search JioSaavn for this playlist name
+    const saavnResults = await searchPlaylists(playlistTitle, 5);
+    if (!saavnResults || saavnResults.length === 0) {
       return NextResponse.json({ error: 'Could not find a matching playlist to import songs from' }, { status: 404 });
     }
 
     // Best match is usually the first one
-    const bestMatch = ytResults[0] as any;
+    const bestMatch = saavnResults[0];
     
-    // We need to fetch the playlist songs using ytmusic-api
-    const YTMusic = (await import('ytmusic-api')).default;
-    const ytmusic = new YTMusic();
-    await ytmusic.initialize();
-    
-    const playlistVideos = (await ytmusic.getPlaylistVideos(bestMatch.playlistId)) as any[];
-    if (!playlistVideos || playlistVideos.length === 0) {
+    // Fetch the playlist details from JioSaavn
+    const playlistData = await getPlaylistDetails(bestMatch.listid || bestMatch.id);
+    const playlistVideos = playlistData?.list || playlistData?.songs;
+
+    if (!playlistVideos || !Array.isArray(playlistVideos) || playlistVideos.length === 0) {
       return NextResponse.json({ error: 'The matched playlist has no songs' }, { status: 404 });
     }
 
@@ -63,24 +83,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create playlist in database' }, { status: 500 });
     }
 
-    // 4. Map the YouTube songs into our DB format
+    // 4. Map the JioSaavn songs into our DB format
     // For simplicity and speed, we will insert songs concurrently if they don't exist
-    const songsToInsert = playlistVideos.map((vid: any) => ({
-      id: vid.videoId,
-      title: vid.name,
-      artist_id: vid.artists?.[0]?.artistId || null,
-      duration: vid.duration || 0,
-      cover_url: vid.thumbnails?.[vid.thumbnails.length - 1]?.url || '/images/default-album.jpg',
-      audio_url: `/api/stream?id=${vid.videoId}&title=${encodeURIComponent(vid.name)}&artist=${encodeURIComponent(vid.artists?.[0]?.name || '')}`,
-    }));
+    const songsToInsert = playlistVideos.map((vid: any) => {
+        const cover = formatImageUrl(vid.image);
+        return {
+          id: vid.id,
+          title: vid.song?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || vid.title || 'Unknown Title',
+          artist_id: vid.primary_artists_id || vid.id,
+          duration: parseInt(vid.duration || '0', 10),
+          cover_url: cover || '/images/default-album.jpg',
+          audio_url: decryptUrl(vid.encrypted_media_url || ''),
+        }
+    }).filter((s: any) => s.audio_url);
 
     // Upsert artists first to satisfy foreign key constraints
     const artistsToInsert = playlistVideos
       .map((vid: any) => {
-        if (!vid.artists?.[0]?.artistId) return null;
+        const artistId = vid.primary_artists_id || vid.id;
+        if (!artistId) return null;
         return {
-          id: vid.artists[0].artistId,
-          name: vid.artists[0].name || 'Unknown',
+          id: artistId,
+          name: vid.primary_artists || vid.singers || 'Unknown',
         };
       })
       .filter((v: any): v is {id: string, name: string} => Boolean(v))
@@ -91,21 +115,23 @@ export async function POST(request: Request) {
     }
 
     // Upsert songs
-    const { error: songsErr } = await supabase.from('songs').upsert(songsToInsert, { onConflict: 'id', ignoreDuplicates: true });
-    if (songsErr) {
-      console.error('Songs insert error:', songsErr);
-    }
+    if (songsToInsert.length > 0) {
+      const { error: songsErr } = await supabase.from('songs').upsert(songsToInsert, { onConflict: 'id', ignoreDuplicates: true });
+      if (songsErr) {
+        console.error('Songs insert error:', songsErr);
+      }
 
-    // Link songs to playlist
-    const playlistSongs = songsToInsert.map((song: any, idx: number) => ({
-      playlist_id: newPlaylist.id,
-      song_id: song.id,
-      position: idx
-    }));
+      // Link songs to playlist
+      const playlistSongs = songsToInsert.map((song: any, idx: number) => ({
+        playlist_id: newPlaylist.id,
+        song_id: song.id,
+        position: idx
+      }));
 
-    const { error: plSongsErr } = await supabase.from('playlist_songs').insert(playlistSongs);
-    if (plSongsErr) {
-      console.error('Playlist songs insert error:', plSongsErr);
+      const { error: plSongsErr } = await supabase.from('playlist_songs').insert(playlistSongs);
+      if (plSongsErr) {
+        console.error('Playlist songs insert error:', plSongsErr);
+      }
     }
 
     return NextResponse.json({ success: true, playlist: newPlaylist });
