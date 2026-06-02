@@ -11,6 +11,8 @@ export default function LibraryPage() {
   const [tab, setTab] = useState<'playlists' | 'liked' | 'albums' | 'artists'>('playlists');
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const [albums, setAlbums] = useState<{ id: string; title: string; cover_url: string; artist_name: string }[]>([]);
+  const [artistList, setArtistList] = useState<{ id: string; name: string; image_url: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [showSpotifyImport, setShowSpotifyImport] = useState(false);
@@ -42,6 +44,41 @@ export default function LibraryPage() {
         .eq('user_id', user!.id)
         .order('liked_at', { ascending: false });
       setLikedSongs((data?.map((d: any) => d.song) ?? []) as Song[]);
+    } else if (tab === 'albums') {
+      const { data } = await supabase
+        .from('liked_songs')
+        .select('song:songs(album_id, album:albums(*), artist:artists(*))')
+        .eq('user_id', user!.id);
+      const seen = new Set<string>();
+      const extracted = (data ?? []).map((d: any) => d.song).filter(Boolean);
+      const unique = extracted.filter((s: any) => {
+        if (!s.album_id || seen.has(s.album_id)) return false;
+        seen.add(s.album_id);
+        return true;
+      });
+      setAlbums(unique.map((s: any) => ({
+        id: s.album_id,
+        title: s.album?.title || 'Unknown Album',
+        cover_url: s.album?.cover_url || s.cover_url || '',
+        artist_name: s.artist?.name || '',
+      })));
+    } else if (tab === 'artists') {
+      const { data } = await supabase
+        .from('liked_songs')
+        .select('song:songs(artist_id, artist:artists(*))')
+        .eq('user_id', user!.id);
+      const seen = new Set<string>();
+      const extracted = (data ?? []).map((d: any) => d.song).filter(Boolean);
+      const unique = extracted.filter((s: any) => {
+        if (!s.artist_id || seen.has(s.artist_id)) return false;
+        seen.add(s.artist_id);
+        return true;
+      });
+      setArtistList(unique.map((s: any) => ({
+        id: s.artist_id,
+        name: s.artist?.name || 'Unknown Artist',
+        image_url: s.artist?.image_url || '',
+      })));
     }
     setLoading(false);
   };
@@ -370,10 +407,50 @@ export default function LibraryPage() {
               </div>
             )}
             
-            {/* Albums/Artists (Placeholders) */}
-            {(tab === 'albums' || tab === 'artists') && (
-              <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
-                <p style={{ color: 'var(--text-secondary)' }}>You don't have any saved {tab} yet.</p>
+            {/* Albums Tab */}
+            {tab === 'albums' && (
+              <div>
+                {albums.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
+                    <p style={{ color: 'var(--text-secondary)' }}>You don't have any saved albums yet.</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: 8 }}>Like songs to build your album collection.</p>
+                  </div>
+                ) : (
+                  <div className="grid-cards">
+                    {albums.map(album => (
+                      <Link key={album.id} href={`/album/${album.id}`}>
+                        <div className="card" style={{ padding: 12 }}>
+                          <img src={album.cover_url} alt={album.title} style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, objectFit: 'cover', marginBottom: 8 }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+                          <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{album.title}</div>
+                          <div className="truncate" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginTop: 2 }}>{album.artist_name}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Artists Tab */}
+            {tab === 'artists' && (
+              <div>
+                {artistList.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-elevated)', borderRadius: 16, border: 'none' }}>
+                    <p style={{ color: 'var(--text-secondary)' }}>You don't have any saved artists yet.</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: 8 }}>Like songs to follow artists.</p>
+                  </div>
+                ) : (
+                  <div className="grid-cards">
+                    {artistList.map(artist => (
+                      <Link key={artist.id} href={`/artist/${artist.id}`}>
+                        <div className="card" style={{ padding: 12, textAlign: 'center' }}>
+                          <img src={artist.image_url} alt={artist.name} style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 8px' }} onError={e => { e.currentTarget.src = '/images/default-artist.jpg'; }} />
+                          <div className="truncate" style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{artist.name}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>

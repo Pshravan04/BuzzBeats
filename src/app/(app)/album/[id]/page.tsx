@@ -23,21 +23,39 @@ export default function AlbumPage() {
   }, [id]);
 
   const loadAlbum = async () => {
-    const { data: albumData } = await supabase
-      .from('albums')
-      .select('*, artist:artists(*)')
-      .eq('id', id)
-      .single();
+    // Try Supabase first
+    try {
+      const { data: albumData } = await supabase
+        .from('albums')
+        .select('*, artist:artists(*)')
+        .eq('id', id)
+        .single();
 
-    if (albumData) {
-      setAlbum(albumData as Album);
-      const { data: songsData } = await supabase
-        .from('songs')
-        .select('*, artist:artists(*), album:albums(*)')
-        .eq('album_id', id)
-        .order('track_number');
-      setSongs((songsData ?? []) as Song[]);
-    }
+      if (albumData) {
+        setAlbum(albumData as Album);
+        const { data: songsData } = await supabase
+          .from('songs')
+          .select('*, artist:artists(*), album:albums(*)')
+          .eq('album_id', id)
+          .order('track_number');
+        setSongs((songsData ?? []) as Song[]);
+        setLoading(false);
+        return;
+      }
+    } catch {}
+
+    // Fallback to JioSaavn API
+    try {
+      const res = await fetch(`/api/album?id=${encodeURIComponent(id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.album) {
+          setAlbum(data.album);
+          setSongs(data.songs || []);
+        }
+      }
+    } catch {}
+
     setLoading(false);
   };
 

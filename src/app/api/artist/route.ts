@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getArtistDetails } from '@/lib/api/jiosaavn';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,18 +12,25 @@ export async function GET(request: Request) {
   }
 
   try {
-    // We removed ytmusic, and for now we will just return a generic response
-    // since JioSaavn artist details are slightly complex to fetch directly without token parsing.
-    return NextResponse.json({ 
-      artist: {
-        id: id,
-        name: 'Artist Profile',
-        image_url: '/images/default-artist.jpg',
-        verified: false,
-        follower_count: 0
-      },
-      songs: [],
-      albums: []
+    const result = await getArtistDetails(id);
+    if (!result) {
+      return NextResponse.json({
+        artist: {
+          id,
+          name: 'Artist',
+          image_url: '/images/default-artist.jpg',
+          verified: false,
+          follower_count: 0,
+        },
+        songs: [],
+        albums: [],
+      });
+    }
+
+    return NextResponse.json({
+      artist: result.artist,
+      songs: result.songs,
+      albums: [],
     });
   } catch (error) {
     console.error('Artist API Error:', error);

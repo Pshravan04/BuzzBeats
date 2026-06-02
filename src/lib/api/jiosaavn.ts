@@ -133,7 +133,7 @@ export async function getTrendingSongs(): Promise<Song[]> {
 export async function getSongDetails(id: string): Promise<Song | null> {
   try {
     const detailsUrl = `${JIOSAAVN_API}?__call=song.getDetails&pids=${id}&_format=json&_marker=0&ctx=web6dot0`;
-    const detailRes = await fetch(detailsUrl);
+    const detailRes = await fetch(detailsUrl, { headers: FETCH_HEADERS });
     const detailJson = await detailRes.json();
     
     if (detailJson.songs && Array.isArray(detailJson.songs) && detailJson.songs.length > 0) {
@@ -199,6 +199,138 @@ export async function searchArtists(query: string, limit = 20): Promise<any[]> {
   } catch (error) {
     console.error('Error searching artists:', error);
     return [];
+  }
+}
+
+export async function getArtistDetails(id: string): Promise<{ artist: any; songs: Song[] } | null> {
+  try {
+    // Fetch artist songs via artist songs endpoint
+    const songsUrl = `${JIOSAAVN_API}?__call=artist.getArtistMoreSongs&artist_id=${id}&n=20&p=1&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(songsUrl, { headers: FETCH_HEADERS });
+    const json = await res.json();
+
+    const rawSongs = json.songs || json.list || [];
+    if (!Array.isArray(rawSongs) || rawSongs.length === 0) return null;
+
+    const first = rawSongs[0];
+    const artistName = first.primary_artists || first.singers || first.artist || [];
+    const artistNameStr = Array.isArray(artistName) ? artistName.join(', ') : artistName;
+
+    const songs: Song[] = rawSongs
+      .filter((track: any) => track.encrypted_media_url)
+      .map((track: any) => {
+        const coverUrl = formatImageUrl(track.image);
+        return {
+          id: track.id,
+          title: track.song?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || track.title || 'Unknown Title',
+          artist_id: track.primary_artists_id || id,
+          artist: {
+            id: track.primary_artists_id || id,
+            name: artistNameStr || 'Unknown Artist',
+            verified: false,
+            follower_count: parseInt(track.follower_count || '0', 10),
+            genres: (track.genre || '').split(',').filter(Boolean),
+            image_url: coverUrl,
+          },
+          album_id: track.albumid || '',
+          album: {
+            id: track.albumid || '',
+            title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
+            artist_id: track.primary_artists_id || id,
+            cover_url: coverUrl,
+            release_date: track.year || '',
+            genre: track.language || '',
+            song_count: 1,
+          },
+          duration: parseInt(track.duration, 10) || 0,
+          audio_url: decryptUrl(track.encrypted_media_url),
+          cover_url: coverUrl,
+          play_count: parseInt(track.play_count || track.popularity || '0', 10) || 0,
+        };
+      });
+
+    const artist: any = {
+      id,
+      name: artistNameStr || 'Artist',
+      image_url: formatImageUrl(first.image),
+      verified: first.verified === '1' || first.verified === true,
+      follower_count: parseInt(first.follower_count || '0', 10),
+      bio: first.bio || '',
+      genres: (first.genre || '').split(',').filter(Boolean),
+    };
+
+    return { artist, songs };
+  } catch (error) {
+    console.error('Error fetching artist details:', error);
+    return null;
+  }
+}
+
+export async function getAlbumDetails(id: string): Promise<{ album: any; songs: Song[] } | null> {
+  try {
+    const detailsUrl = `${JIOSAAVN_API}?__call=album.getDetails&albumid=${id}&_format=json&_marker=0&ctx=web6dot0`;
+    const res = await fetch(detailsUrl, { headers: FETCH_HEADERS });
+    const json = await res.json();
+
+    const rawSongs = json.songs || json.list || [];
+    if (!Array.isArray(rawSongs) || rawSongs.length === 0) return null;
+
+    const albumData = json.album || json;
+    const coverUrl = formatImageUrl(albumData.image || (rawSongs[0]?.image || ''));
+    const artistName = albumData.primary_artists || albumData.artist || rawSongs[0]?.primary_artists || 'Unknown Artist';
+
+    const songs: Song[] = rawSongs
+      .filter((track: any) => track.encrypted_media_url)
+      .map((track: any) => {
+        const trackCover = formatImageUrl(track.image) || coverUrl;
+        return {
+          id: track.id,
+          title: track.song?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || track.title || 'Unknown Title',
+          artist_id: track.primary_artists_id || albumData.primary_artists_id || id,
+          artist: {
+            id: track.primary_artists_id || albumData.primary_artists_id || id,
+            name: track.primary_artists || track.singers || artistName,
+            verified: false,
+            follower_count: 0,
+            genres: [],
+            image_url: trackCover,
+          },
+          album_id: track.albumid || id,
+          album: {
+            id: track.albumid || id,
+            title: track.album?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || albumData.title || 'Unknown Album',
+            artist_id: track.primary_artists_id || albumData.primary_artists_id || id,
+            cover_url: trackCover,
+            release_date: track.year || albumData.year || '',
+            genre: track.language || albumData.language || '',
+            song_count: rawSongs.length,
+          },
+          duration: parseInt(track.duration, 10) || 0,
+          audio_url: decryptUrl(track.encrypted_media_url),
+          cover_url: trackCover,
+          play_count: parseInt(track.play_count || track.popularity || '0', 10) || 0,
+        };
+      });
+
+    const album: any = {
+      id,
+      title: albumData.title?.replace(/&quot;/g, '"')?.replace(/&#039;/g, "'") || 'Unknown Album',
+      artist_id: albumData.primary_artists_id || '',
+      artist: {
+        id: albumData.primary_artists_id || '',
+        name: artistName,
+        image_url: coverUrl,
+      },
+      cover_url: coverUrl,
+      release_date: albumData.year || '',
+      genre: albumData.language || '',
+      song_count: songs.length,
+    };
+
+    return { album, songs };
+  } catch (error) {
+    console.error('Error fetching album details:', error);
+    return null;
   }
 }
 

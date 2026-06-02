@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { usePlayer } from '@/context/PlayerContext';
@@ -20,6 +20,8 @@ export default function RoomPage() {
   const { user } = useAuth();
   const player = usePlayer();
   const supabase = createClient();
+
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
     if (!user || !roomId || roomId === 'create') return;
@@ -49,6 +51,7 @@ export default function RoomPage() {
     const channel = supabase.channel(`room:${roomId}`, {
       config: { presence: { key: user!.id } },
     });
+    channelRef.current = channel;
 
     // Presence
     channel.on('presence', { event: 'sync' }, () => {
@@ -62,18 +65,18 @@ export default function RoomPage() {
       setParticipants(presences);
     });
 
-    // Room state broadcast
+    // Room state broadcast listener
     channel.on('broadcast', { event: 'room_state' }, ({ payload }) => {
       if (payload.updated_by !== user!.id) {
         const rs = payload as RoomState;
         setRoomState(rs);
-        // Sync player
         if (rs.song_id && player.currentSong?.id !== rs.song_id) {
           const song = songs.find(s => s.id === rs.song_id);
           if (song) player.play(song, songs);
         }
-        const currentProgress = rs.position_ms / 1000 / (player.duration || 1);
-        if (Math.abs((player.progress - currentProgress)) > 0.05) {
+        const dur = player.duration || 1;
+        const currentProgress = rs.position_ms / 1000 / dur;
+        if (Math.abs(player.progress - currentProgress) > 0.05) {
           player.seek(currentProgress);
         }
         if (rs.is_playing && !player.isPlaying) player.resume();
@@ -104,12 +107,12 @@ export default function RoomPage() {
     }
 
     setLoading(false);
-    return channel;
   };
 
   const broadcastState = useCallback(async () => {
     if (!isHost) return;
-    const channel = supabase.channel(`room:${roomId}`);
+    const channel = channelRef.current;
+    if (!channel) return;
     await channel.send({
       type: 'broadcast',
       event: 'room_state',
@@ -132,7 +135,8 @@ export default function RoomPage() {
   const cleanup = async () => {
     if (!user) return;
     await supabase.from('room_participants').delete().eq('room_id', roomId).eq('user_id', user.id);
-    await supabase.removeAllChannels();
+    channelRef.current?.unsubscribe();
+    channelRef.current = null;
   };
 
   if (roomId === 'create') {
