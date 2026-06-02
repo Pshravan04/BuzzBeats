@@ -10,11 +10,13 @@ interface HomeClientProps {
   trendingSongs: Song[];
   popularHits: Song[];
   newReleases: Song[];
+  playlists: any[];
+  artists: any[];
 }
 
 const FILTER_CHIPS = ['Energize', 'Workout', 'Relax', 'Focus', 'Commute'];
 
-export default function HomeClient({ trendingSongs, popularHits, newReleases }: HomeClientProps) {
+export default function HomeClient({ trendingSongs, popularHits, newReleases, playlists, artists }: HomeClientProps) {
   const { user } = useAuth();
   const player = usePlayer();
   const [activeChip, setActiveChip] = useState<string | null>(null);
@@ -112,6 +114,56 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
         </div>
       </section>
 
+      {/* Trending Artists */}
+      {artists.length > 0 && (
+        <section style={{ marginBottom: 40 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', margin: 0 }}>
+              Popular Artists
+            </h2>
+            <Link href="/search" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'none' }}>Show all</Link>
+          </div>
+          <div style={{ display: 'flex', gap: 24, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
+            {artists.map(artist => (
+              <Link key={artist.id} href={`/artist/${artist.id}`} style={{ textDecoration: 'none', flexShrink: 0, width: 140 }}>
+                <div style={{ textAlign: 'center', cursor: 'pointer' }}>
+                  <div style={{ width: 140, height: 140, borderRadius: '50%', overflow: 'hidden', marginBottom: 12, background: 'var(--bg-elevated)' }}>
+                    <img src={artist.image_url} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-artist.jpg'; }} />
+                  </div>
+                  <div className="truncate" style={{ fontWeight: 700, fontSize: 14, textAlign: 'center' }}>{artist.name}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 2 }}>Artist</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Playlist Suggestions */}
+      {playlists.length > 0 && (
+        <section style={{ marginBottom: 40 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', margin: 0 }}>
+              Suggested Playlists
+            </h2>
+            <Link href="/search" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'none' }}>Show all</Link>
+          </div>
+          <div className="grid-cards">
+            {playlists.map(playlist => (
+              <Link key={playlist.id} href={`/playlist/${playlist.id}`} style={{ textDecoration: 'none' }}>
+                <div className="card" style={{ padding: 16, position: 'relative', cursor: 'pointer' }}>
+                  <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, marginBottom: 16, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                    <img src={playlist.cover_url} alt={playlist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+                  </div>
+                  <div className="truncate" style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{playlist.name}</div>
+                  <div className="truncate" style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{playlist.owner?.display_name}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Your Top Mixes */}
       <section style={{ marginBottom: 40 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
@@ -135,7 +187,6 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{mix.label}</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{mix.desc}</div>
               
-              {/* Play button on hover */}
               <div className="play-button" style={{
                 position: 'absolute', top: 120, right: 24, width: 48, height: 48, borderRadius: '50%',
                 background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -178,14 +229,33 @@ export default function HomeClient({ trendingSongs, popularHits, newReleases }: 
         </div>
       </section>
 
+      {/* New Releases */}
+      <section style={{ marginTop: 40 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', margin: 0 }}>
+            New Releases
+          </h2>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', cursor: 'pointer' }}>Show all</span>
+        </div>
+
+        <div className="grid-cards">
+          {newReleases.slice(0, 6).map((song) => (
+            <div key={song.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 16, position: 'relative', cursor: 'pointer' }} onClick={() => player.play(song, newReleases)}>
+              <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, marginBottom: 16, overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                <img src={song.cover_url} alt={song.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.currentTarget.src = '/images/default-album.jpg'; }} />
+              </div>
+              <div className="truncate" style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{song.title}</div>
+              <div className="truncate" style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{song.artist?.name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }
 
-// ============================================
 // Icons
-// ============================================
-
 function PlayIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -193,42 +263,9 @@ function PlayIcon({ size = 24 }: { size?: number }) {
     </svg>
   );
 }
-function SearchIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>;
-}
-function SettingsIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>;
-}
-function DotsIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>;
-}
-function DotsHorizontalIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>;
-}
-function ZapIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>;
-}
-function MoonIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>;
-}
-function DumbbellIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.4 14.4l-4.8-4.8"></path><path d="M16.8 12l2.4-2.4-2.4-2.4"></path><path d="M12 16.8l-2.4 2.4-2.4-2.4"></path><path d="M22.8 10.8l-1.2-1.2-2.4 2.4 1.2 1.2c.7.7.7 1.8 0 2.5l-1.2 1.2-4.8-4.8 1.2-1.2c.7-.7 1.8-.7 2.5 0l1.2 1.2 2.4-2.4-1.2-1.2"></path><path d="M1.2 13.2l1.2 1.2 2.4-2.4-1.2-1.2c-.7-.7-.7-1.8 0-2.5l1.2-1.2 4.8 4.8-1.2 1.2c-.7.7-1.8.7-2.5 0L4.8 12 2.4 14.4l1.2 1.2"></path></svg>;
-}
-function BrainIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>;
-}
-function HeartOutlineIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>;
-}
-function CameraIcon({ size = 24, color = 'currentColor' }: { size?: number, color?: string }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>;
-}
 function ChevronLeftIcon({ size = 24 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>;
 }
 function ChevronRightIcon({ size = 24 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
-}
-function BellIcon({ size = 24 }: { size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>;
 }

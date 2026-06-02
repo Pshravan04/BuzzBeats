@@ -334,6 +334,66 @@ export async function getAlbumDetails(id: string): Promise<{ album: any; songs: 
   }
 }
 
+export async function getTrendingPlaylists(limit = 10): Promise<any[]> {
+  try {
+    const queries = ['trending', 'popular', 'top hits', 'new music', 'viral'];
+    const results: any[] = [];
+    const seen = new Set<string>();
+
+    for (const q of queries) {
+      if (results.length >= limit) break;
+      const list = await searchPlaylists(q, 5);
+      for (const item of list) {
+        if (!seen.has(item.listid)) {
+          seen.add(item.listid);
+          results.push({
+            id: item.listid,
+            name: item.listname,
+            cover_url: (item.image || '').replace('150x150', '500x500').replace('50x50', '500x500') || '/images/default-album.jpg',
+            song_count: parseInt(item.count || '0', 10),
+            owner: {
+              display_name: [item.firstname, item.lastname].filter(Boolean).join(' ') || 'JioSaavn',
+            },
+          });
+        }
+      }
+    }
+    return results.slice(0, limit);
+  } catch (error) {
+    console.error('Error fetching trending playlists:', error);
+    return [];
+  }
+}
+
+export async function getTrendingArtists(limit = 8): Promise<any[]> {
+  try {
+    const queries = ['popular', 'top artists', 'trending'];
+    const results: any[] = [];
+    const seen = new Set<string>();
+
+    for (const q of queries) {
+      if (results.length >= limit) break;
+      const list = await searchArtists(q, 5);
+      for (const item of list) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id);
+          results.push({
+            id: item.id,
+            name: item.name,
+            image_url: (item.image || '').replace('50x50', '500x500').replace('150x150', '500x500') || '/images/default-artist.jpg',
+            follower_count: parseInt(item.follower_count || '0', 10),
+            verified: item.verified === '1' || item.verified === true,
+          });
+        }
+      }
+    }
+    return results.slice(0, limit);
+  } catch (error) {
+    console.error('Error fetching trending artists:', error);
+    return [];
+  }
+}
+
 export async function getPlaylistDetails(id: string): Promise<any> {
   try {
     const detailsUrl = `${JIOSAAVN_API}?__call=playlist.getDetails&listid=${id}&_format=json&_marker=0&ctx=web6dot0`;

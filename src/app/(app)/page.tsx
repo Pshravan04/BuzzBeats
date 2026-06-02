@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTrendingSongs, searchSongs } from '@/lib/api/jiosaavn';
+import { getTrendingSongs, searchSongs, getTrendingPlaylists, getTrendingArtists } from '@/lib/api/jiosaavn';
 import HomeClient from './HomeClient';
 
 export const metadata: Metadata = {
@@ -8,11 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  // Fetch real data from JioSaavn API concurrently
-  const [trendingSongs, popularHits, newReleases] = await Promise.all([
+  const [trendingSongs, popularHits, newReleases, playlists, artists] = await Promise.all([
     getTrendingSongs(),
     searchSongs('popular', 10),
-    searchSongs('new release', 10)
+    searchSongs('new release', 10),
+    getTrendingPlaylists(8),
+    getTrendingArtists(8),
   ]);
 
   return (
@@ -20,6 +21,8 @@ export default async function HomePage() {
       trendingSongs={trendingSongs}
       popularHits={popularHits}
       newReleases={newReleases}
+      playlists={playlists}
+      artists={artists}
     />
   );
 }
